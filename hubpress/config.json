@@ -2,10 +2,11 @@
   "meta": {
     "username": "kunicmarko20",
     "repositoryName": "kunicmarko20.github.io",
-    "branch": "master"
+    "branch": "master",
+    "cname": ""
   },
   "theme": {
-    "name": "casper"
+    "name": "uno"
   },
   "urls": {
     "site": "https://kunicmarko20.github.io",
@@ -22,5 +23,27 @@
       null,
       null
     ]
+  },
+  "site": {
+    "title": "Marko Kunic",
+    "description": "",
+    "logo": "",
+    "cover": "",
+    "delay": "",
+    "postsPerPage": "",
+    "googleAnalytics": "",
+    "disqus": ""
+  },
+  "socialnetwork": {
+    "email": "kunicmarko20@gmail.com",
+    "github": "https://github.com/kunicmarko20",
+    "twitter": "",
+    "facebook": "",
+    "googleplus": "",
+    "instagram": "",
+    "pinterest": "",
+    "flickr": "",
+    "linkedin": "http://rs.linkedin.com/in/kunicmarko20",
+    "stackoverflow": "http://stackoverflow.com/users/5258172/marko-kuni%C4%87"
   }
 }
