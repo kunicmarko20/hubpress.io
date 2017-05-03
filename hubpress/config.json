@@ -5,6 +5,22 @@
     "branch": "master"
   },
   "theme": {
-    "name": "Casper"
+    "name": "casper"
+  },
+  "urls": {
+    "site": "https://kunicmarko20.github.io",
+    "hubpress": "https://kunicmarko20.github.io",
+    "theme": "//kunicmarko20.github.io/themes/casper",
+    "images": "https://kunicmarko20.github.io/images"
+  },
+  "initialisationConfigComponent": {
+    "name": "initialise-configuration",
+    "computed": {},
+    "methods": {},
+    "staticRenderFns": [
+      null,
+      null,
+      null
+    ]
   }
 }
