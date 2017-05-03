@@ -1,6 +1,6 @@
 = Intro
 :description: About the author of this blog and what will be published.
-:hp-tags: About, Intro, Kunic Marko
+:hp-tags: About, Intro
 Marko Kunic <kunicmarko20@gmail.com>
 
 
