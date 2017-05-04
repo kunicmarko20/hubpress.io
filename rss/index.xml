@@ -1,3 +1,192 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Thu, 04 May 2017 17:02:10 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Intro]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Thu, 04 May 2017 17:06:04 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Clone/Duplicate Node with Paragraphs field in Drupal 8]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so I had to find some kind of solution. You can check my short answer on <a href="https://drupal.stackexchange.com/a/230035">stackoverflow</a> or continue reading this.</p>
+</div>
+<div class="paragraph">
+<p>Code from this text can also be found <a href="https://gist.github.com/kunicmarko20/d1fcb622bda26f9707f6ff96297f2090">here</a>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+At the time of this writing, there is still no stable modules for cloning.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>What if we add <a href="https://www.drupal.org/project/paragraphs">Paragraphs module</a>? Great solution for page builder in Drupal, be sure to check it out. I will explain how to create clones of your Nodes with or without Paragraphs.</p>
+</div>
+<div class="paragraph">
+<p>We will create a custom module that will add an option to our content listing for cloning.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_module">Custom Module</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>So we will create a custom module with name '<strong>clone_nodes</strong>' in the modules directory.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.info.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">name: Clone Nodes
+description: 'Creates clone of node.'
+type: module
+core: 8.x
+package: Custom</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.routing.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">clone_nodes:
+    path: '/cnodes/node/{id}/clone'
+    defaults:
+        _controller: '\Drupal\clone_nodes\Controller\CloneController::clone'
+    requirements:
+        _permission: 'access content'</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.module</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+function clone_nodes_pages_entity_operation(\Drupal\Core\Entity\EntityInterface $entity)
+{
+
+    $operations = [];
+
+    if ($entity instanceof \Drupal\node\Entity\Node) {
+        $operations['clone'] = [
+          'title' =&gt; t('Clone'),
+          'url' =&gt; \Drupal\Core\Url::fromRoute('clone_nodes',['id' =&gt; $entity-&gt;id()]),
+          'weight' =&gt; 150,
+        ];
+    }
+
+    return $operations;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we only need the Controller and that will be different if you are using paragraphs or not.</p>
+</div>
+<div class="sect2">
+<h3 id="_controller_without_paragraphs">Controller without Paragraphs</h3>
+<div class="paragraph">
+<p>After searching for this solution I found that Drupal 8 Entity API has <a href="https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Entity%21Entity.php/function/Entity%3A%3AcreateDuplicate/8.2.x">createDuplicate method</a> so I used that.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CloneController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+namespace Drupal\clone_nodes\Controller;
+
+use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\node\Entity\Node;
+
+class CloneController extends ControllerBase
+{
+
+    public function clone($id)
+    {
+        $node = Node::load($id);
+        if ($node === null) {
+            drupal_set_message(t('Node with id @id does not exist.', ['@id' =&gt; $id]), 'error');
+        } else {
+
+            $nodeDuplicate = $node-&gt;createDuplicate();
+            //edit title or something so you can find cloned
+            $nodeDuplicate-&gt;save();
+
+            drupal_set_message(
+            	t("Node has been created. &lt;a href='/node/@id/edit' target='_blank'&gt;Edit now&lt;/a&gt;", [
+                  '@id' =&gt; $nodeDuplicate-&gt;id(),
+                  '@title' =&gt; $nodeDuplicate-&gt;getTitle()]
+            	 ), 'status');
+        }
+
+        return new RedirectResponse('/admin/content');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you create duplicate of node you can edit title or something so you can distinguish original from cloned, but the only difference that I saw was that cloned Node doesn&#8217;t have alias url becuase that stays bound to original.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_controller_with_paragraphs">Controller with Paragraphs</h3>
+<div class="paragraph">
+<p>The only difference is that you have to duplicate every paragraphs field that is connected to node, so we will just add this part of code :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">foreach ($nodeDuplicate-&gt;field_paragraphs as $field) {
+    $field-&gt;entity = $field-&gt;entity-&gt;createDuplicate();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code><strong>field_paragraphs</strong></code> is machine name I used for my paragraphs field in Content Type, be sure to changed it to match yours.</p>
+</div>
+<div class="paragraph">
+<p>So our Controller now looks like :</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CloneController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+namespace Drupal\clone_nodes\Controller;
+
+use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\node\Entity\Node;
+
+class CloneController extends ControllerBase
+{
+
+    public function clone($id)
+    {
+        $node = Node::load($id);
+        if ($node === null) {
+            drupal_set_message(t('Node with id @id does not exist.', ['@id' =&gt; $id]), 'error');
+        } else {
+
+            $nodeDuplicate = $node-&gt;createDuplicate();
+
+            foreach ($nodeDuplicate-&gt;field_paragraphs as $field) {
+                $field-&gt;entity = $field-&gt;entity-&gt;createDuplicate();
+            }
+
+            //edit title or something so you can find cloned
+            $nodeDuplicate-&gt;save();
+
+            drupal_set_message(
+            	t("Node has been created. &lt;a href='/node/@id/edit' target='_blank'&gt;Edit now&lt;/a&gt;", [
+                  '@id' =&gt; $nodeDuplicate-&gt;id(),
+                  '@title' =&gt; $nodeDuplicate-&gt;getTitle()]
+            	 ), 'status');
+        }
+
+        return new RedirectResponse('/admin/content');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I hope this helps someone with this problem and until some old clone module is ported to Drupal 8 I guess this will have to do it.</p>
+</div>
+</div>
+</div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/04/Clone-Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/04/Clone-Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html</guid><category><![CDATA[Drupal]]></category><category><![CDATA[Drupal8]]></category><category><![CDATA[Paragraphs]]></category><category><![CDATA[Duplicate Node]]></category><category><![CDATA[Node Clone]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Thu, 04 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Intro]]></title><description><![CDATA[<div class="paragraph">
 <p>As you already know, my name is Marko Kunic. Currently I am a PHP developer working with Symfony, Wordpress and Drupal, so for now you can expect my blog posts to be related to that and anything that pops in between. Through time, I encountered the problems where stackoverflow didn&#8217;t have a solution and a lot of google pages after I find some random blog that has a solution. To contribute back my goal is to post about solutions that wasted my time so hopefully the next person that has the same problem runs into this blog and finds what they were looking for.</p>
 </div>]]></description><link>https://kunicmarko20.github.io/2017/05/03/Intro.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/03/Intro.html</guid><category><![CDATA[About]]></category><category><![CDATA[Intro]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Wed, 03 May 2017 00:00:00 GMT</pubDate></item></channel></rss>
