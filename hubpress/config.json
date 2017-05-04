@@ -6,12 +6,12 @@
     "cname": ""
   },
   "theme": {
-    "name": "ghostium"
+    "name": "uno-zen"
   },
   "urls": {
     "site": "https://kunicmarko20.github.io",
     "hubpress": "https://kunicmarko20.github.io",
-    "theme": "//kunicmarko20.github.io/themes/the-shell",
+    "theme": "//kunicmarko20.github.io/themes/ghostium",
     "images": "https://kunicmarko20.github.io/images"
   },
   "initialisationConfigComponent": {
