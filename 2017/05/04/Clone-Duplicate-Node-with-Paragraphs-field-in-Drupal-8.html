@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <script>
+        // UNCOMMENT AND USE YOUR VARIABLES FOR DISQUS AND GOOGLE ANALYTICS
+        // var d_id  = '',
+        //     g_id  = 'UA-XXXXXXXX-X', // Format: UA-########-#, Example: UA-11220899-1
+        //     g_url = 'XXXXXXX.XXX' // Format: #####.####, Example: webdesignporto.com
+    </script>
 
     <title>Clone/Duplicate Node with Paragraphs field in Drupal 8</title>
     <meta name="description" content="" />
 
     <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="shortcut icon" href="https://kunicmarko20.github.io/favicon.ico">
-
-    <script type="text/javascript" src="//kunicmarko20.github.io/themes/ichi/assets/js/vendor/fastclick.js?v=1493919360248"></script>
-    <script type="text/javascript" src="//kunicmarko20.github.io/themes/ichi/assets/js/vendor/modernizr.js?v=1493919360248"></script>
-
-
-    <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/ichi/assets/css/normalize.css?v=1493919360248" />
-    <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/ichi/assets/css/foundation.min.css?v=1493919360248" />
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/ichi/assets/css/outdatedBrowser.min.css?v=1493919360248">
-    <![endif]-->
-    <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/ichi/assets/fonts/foundation-icons/foundation-icons.css?v=1493919360248" />
-    <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/ichi/assets/css/styles.css?v=1493919360248" />
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans:300,700,400|Source+Sans+Pro:300,400,600,700,900,300italic,400italic,600italic,700italic,900italic" />
+    <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/the-shell/assets/highlighter/prettify.css?v=1493919569732" />
+    <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/the-shell/assets/css/screen.css?v=1493919569732" />
 
     <link rel="canonical" href="https://kunicmarko20.github.io/2017/05/04/Clone-Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html" />
     <meta name="referrer" content="origin" />
@@ -68,86 +63,29 @@
     <meta name="generator" content="HubPress" />
     <link rel="alternate" type="application/rss+xml" title="Marko Kunic" href="https://kunicmarko20.github.io/rss/" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+
 </head>
 <body class="post-template tag-Drupal tag-Drupal8 tag-Paragraphs tag-Duplicate-Node tag-Node-Clone">
 
-<div id="outdated">
-    <h6>Your browser is out-of-date!</h6>
-    <p>Update your browser to view this website correctly. <a id="btnUpdate" href="http://outdatedbrowser.com/">Update my browser now</a></p>
-</div>
-
-<nav class="top-bar hide-for-large-up" data-topbar >
-  <ul class="title-area">
-    <li class="name">
-
-    </li>
-    <li class="home"><a class="fi-home" href="https://kunicmarko20.github.io"></a></li>
-    <li class="toggle-topbar"><a href="#" id="trigger-overlay" class="fi-list"></a></li>
-  </ul>
-
-<div class="overlay overlay-scale">
-    <button type="button" class="overlay-close">Close</button>
-    <nav>
-        <ul>
-            <li><a href="https://kunicmarko20.github.io">Home</a></li>
-        </ul>
-    </nav>
-</div>
-
-</nav>
-
-<div class="row">
-
-<div class="small-16 medium-16 large-4 columns right head-area" >
-
-<header class="site-head">
-    <div class="vertical">
-        <div class="site-head-content inner">
-            <ul class="side-nav blog-menu show-for-large-up">
-                <li><a class="fi-home" href="https://kunicmarko20.github.io"></a></li>
-                <li><a class="fi-torso" href="https://kunicmarko20.github.io/about"></a></li>
-                <li><a class="fi-mail" href="https://kunicmarko20.github.io/contact"></a></li>
-            </ul>
-            <a class="blog-logo" href="https://kunicmarko20.github.io"><img alt="Marko Kunic" src="https://cloud.githubusercontent.com/assets/13528674/25677205/5abf2c10-3045-11e7-90c7-d7d327cccab2.png" alt="Blog Logo" /></a>
-            <h1 class="blog-title">Marko Kunic</h1>
-            <hr>
-            <p class="blog-description">Web Developer</p>
-            <div class="blog-network">
-<!--                 <a href="#" class="fi-social-pinterest"></a>
-                <a href="#" class="fi-social-linkedin"></a>
-                <a href="#" class="fi-social-behance"></a>
-                <a href="#" class="fi-social-deviant-art"></a>
-                <a href="#" class="fi-social-dribbble"></a>
-                <a href="#" class="fi-social-flickr"></a>
-                <a href="#" class="fi-social-github"></a>
-                <a href="#" class="fi-social-skype"></a>
-                <a href="#" class="fi-social-snapchat"></a>
-                <a href="#" class="fi-social-steam"></a>
-                <a href="#" class="fi-social-xbox"></a>
-                <a href="#" class="fi-social-reddit"></a> -->
-                  <a href="https://github.com/kunicmarko20" class="fi-social-github"></a>
-            </div>
-        </div>
-    </div>
-</header>
-
-</div>
-
-
-<div class="small-16 medium-16 large-12 columns main-column left">
     
 
 <main class="content" role="main">
 
     <article class="post tag-Drupal tag-Drupal8 tag-Paragraphs tag-Duplicate-Node tag-Node-Clone">
 
+        <header class="post-header">
+            <a id="blog-logo" href="https://kunicmarko20.github.io">
+                    <img src="https://cloud.githubusercontent.com/assets/13528674/25677205/5abf2c10-3045-11e7-90c7-d7d327cccab2.png" alt="Blog Logo" />
+            </a>
+        </header>
 
-            <h1 class="post-title">Clone/Duplicate Node with Paragraphs field in Drupal 8</h1>
 
-            <span class="post-meta label"><time datetime="2017-05-04">04 May 2017</time></span>
+        <span class="post-meta"><time datetime="2017-05-04">04 May 2017</time> on <a href="https://kunicmarko20.github.io/tag/Drupal/">Drupal</a> | <a href="https://kunicmarko20.github.io/tag/Drupal8/">Drupal8</a> | <a href="https://kunicmarko20.github.io/tag/Paragraphs/">Paragraphs</a> | <a href="https://kunicmarko20.github.io/tag/Duplicate-Node/">Duplicate Node</a> | <a href="https://kunicmarko20.github.io/tag/Node-Clone/">Node Clone</a></span>
 
-            <section class="post-content">
-                <div id="preamble">
+        <h1 class="post-title">Clone/Duplicate Node with Paragraphs field in Drupal 8</h1>
+
+        <section class="post-content">
+            <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so I had to find some kind of solution. You can check my short answer on <a href="https://drupal.stackexchange.com/a/230035">stackoverflow</a> or continue reading this.</p>
@@ -337,56 +275,47 @@ class CloneController extends ControllerBase
 </div>
 </div>
 </div>
-                        <aside class="tags fi-pricetag-multiple">Posted on <a href="https://kunicmarko20.github.io/tag/Drupal/">Drupal</a>, <a href="https://kunicmarko20.github.io/tag/Drupal8/">Drupal8</a>, <a href="https://kunicmarko20.github.io/tag/Paragraphs/">Paragraphs</a>, <a href="https://kunicmarko20.github.io/tag/Duplicate-Node/">Duplicate Node</a>, <a href="https://kunicmarko20.github.io/tag/Node-Clone/">Node Clone</a></aside>
-            </section>
-            <hr>
-            <footer class="post-footer">
+        </section>
 
-                <section class="share">
-                    <h4>Liked this post ? Share it.</h4>
-                    <a class="fi-social-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://kunicmarko20.github.io/"
-                        onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
-                    </a>
-                    <a class="fi-social-twitter" href="https://twitter.com/share?text=Clone%2FDuplicate%20Node%20with%20Paragraphs%20field%20in%20Drupal%208&amp;url=https://kunicmarko20.github.io/"
-                        onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
-                    </a>
-                    <a class="fi-social-google-plus" href="https://plus.google.com/share?url=https://kunicmarko20.github.io/"
-                       onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
-                    </a>
-                </section>
+
+        <footer class="post-footer">
 
                 <section class="author">
-                    <header>
-                        <span>About the author</span>
-                    </header>
-                    <section>
-                        <h4>Marko Kunic</h4>
-                        <img src="https://avatars0.githubusercontent.com/u/13528674?v&#x3D;3">
-                        <span>Serbia</span>
-                        <a href="https://github.com/kunicmarko20">https://github.com/kunicmarko20</a>
-                    </section>
-                    <footer>
-                         <p></p>
-                    </footer>
+                    <h4>Marko Kunic</h4>
+                    <p></p>
                 </section>
 
-        <div class="clearfix"></div>
-                    <hr>
+            <section class="share">
+                <h4>Share this</h4>
+                <a class="icon-twitter" href="http://twitter.com/share?text=Clone/Duplicate Node with Paragraphs field in Drupal 8&url=https://kunicmarko20.github.io/"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://kunicmarko20.github.io/"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://kunicmarko20.github.io/"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
 
-            </footer>
-
-        <h3 class="title-disqus"><span class="fi-comments"></span>Discussions</h3>
-
-
+        </footer>
 
 
     </article>
 
 </main>
 
-</div>
 
-</div>
+    <footer class="site-footer">
+        <!-- <a class="subscribe icon-feed" href="https://kunicmarko20.github.io/rss/"><span class="tooltip">Subscribe!</span></a> -->
+        <div class="inner">
+             <section class="copyright">All content copyright <a href="/">Marko Kunic</a> &copy; 2017 &bull; All rights reserved.</section>
+             <section class="poweredby">Proudly published with <a href="http://hubpress.io">HubPress</span></a> in <a href="https://github.com/mityalebedev/The-Shell">The Shell</a> theme.</section>
+        </div>
+    </footer>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
       <script type="text/javascript">
@@ -403,14 +332,7 @@ class CloneController extends ControllerBase
        
     <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
-    <!--[if lte IE 8]>
-        <script type="text/javascript" src="//kunicmarko20.github.io/themes/ichi/assets/js/outdatedBrowser.min.js?v=1493919360248"></script>
-    <![endif]-->
-    <script type="text/javascript" src="//kunicmarko20.github.io/themes/ichi/assets/js/min/built.js?v=1493919360248"></script>
-
-    <script>
-      $(document).foundation();
-    </script>
-
+    <script type='text/javascript' src="//kunicmarko20.github.io/themes/the-shell/assets/highlighter/prettify.js?v=1493919569732"></script>
+    <script type='text/javascript' src="//kunicmarko20.github.io/themes/the-shell/assets/js/shell.js?v=1493919569732"></script>
 </body>
 </html>
