@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Duplicate Node with Paragraphs field in Drupal 8</title>
+    <meta name="description" content="" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://kunicmarko20.github.io/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="//kunicmarko20.github.io/themes/casper/assets/css/screen.css?v=1493893814356" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+
+    <link rel="canonical" href="https://kunicmarko20.github.io/2017/05/04/Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Marko Kunic" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Duplicate Node with Paragraphs field in Drupal 8" />
+    <meta property="og:description" content="Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so" />
+    <meta property="og:url" content="https://kunicmarko20.github.io/2017/05/04/Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html" />
+    <meta property="article:published_time" content="2017-05-04T00:00:00.000Z" />
+    <meta property="article:tag" content="Drupal" />
+    <meta property="article:tag" content="Drupal8" />
+    <meta property="article:tag" content="Paragraphs" />
+    <meta property="article:tag" content="Duplicate" />
+    <meta property="article:tag" content="Node Clone" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Duplicate Node with Paragraphs field in Drupal 8" />
+    <meta name="twitter:description" content="Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so" />
+    <meta name="twitter:url" content="https://kunicmarko20.github.io/2017/05/04/Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Marko Kunic",
+    "author": {
+        "@type": "Person",
+        "name": "Marko Kunic",
+        "image": "https://avatars0.githubusercontent.com/u/13528674?v=3",
+        "url": "https://kunicmarko20.github.io/author/kunicmarko20/",
+        "sameAs": "https://github.com/kunicmarko20"
+    },
+    "headline": "Duplicate Node with Paragraphs field in Drupal 8",
+    "url": "https://kunicmarko20.github.io/2017/05/04/Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html",
+    "datePublished": "2017-05-04T00:00:00.000Z",
+    "keywords": "Drupal, Drupal8, Paragraphs, Duplicate, Node Clone",
+    "description": "Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so"
+}
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Marko Kunic" href="https://kunicmarko20.github.io/rss/" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+</head>
+<body class="post-template tag-Drupal tag-Drupal8 tag-Paragraphs tag-Duplicate tag-Node-Clone nav-closed">
+
+    
+
+    <div class="site-wrapper">
+
+        
+
+
+<header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        <a class="blog-logo" href="https://kunicmarko20.github.io"><img src="https://cloud.githubusercontent.com/assets/13528674/25677205/5abf2c10-3045-11e7-90c7-d7d327cccab2.png" alt="Marko Kunic" /></a>
+    </nav>
+</header>
+
+<main class="content" role="main">
+    <article class="post tag-Drupal tag-Drupal8 tag-Paragraphs tag-Duplicate tag-Node-Clone">
+
+        <header class="post-header">
+            <h1 class="post-title">Duplicate Node with Paragraphs field in Drupal 8</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2017-05-04">04 May 2017</time>  on <a href="https://kunicmarko20.github.io/tag/Drupal/">Drupal</a>, <a href="https://kunicmarko20.github.io/tag/Drupal8/">Drupal8</a>, <a href="https://kunicmarko20.github.io/tag/Paragraphs/">Paragraphs</a>, <a href="https://kunicmarko20.github.io/tag/Duplicate/">Duplicate</a>, <a href="https://kunicmarko20.github.io/tag/Node-Clone/">Node Clone</a>
+            </section>
+        </header>
+
+        <section class="post-content">
+            <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so I had to find some kind of solution. You can check my short answer on <a href="https://drupal.stackexchange.com/a/230035">stackoverflow</a> or continue reading this.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+At the time of this writing, there is still no stable modules for cloning.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>What if we add <a href="https://www.drupal.org/project/paragraphs">Paragraphs module</a>? Great solution for page builder in Drupal, be sure to check it out. I will explain how to create clones of your Nodes with or without Paragraphs.</p>
+</div>
+<div class="paragraph">
+<p>We will create a custom module that will add an option to our content listing for cloning.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_module">Custom Module</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>So we will create a custom module with name '<strong>clone_nodes</strong>' in the modules directory.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.info.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">name: Clone Nodes
+description: 'Creates clone of node.'
+type: module
+core: 8.x
+package: Custom</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.routing.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">clone_nodes:
+    path: '/cnodes/node/{id}/clone'
+    defaults:
+        _controller: '\Drupal\clone_nodes\Controller\CloneController::clone'
+    requirements:
+        _permission: 'access content'</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.module</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+function clone_nodes_pages_entity_operation(\Drupal\Core\Entity\EntityInterface $entity)
+{
+
+    $operations = [];
+
+    if ($entity instanceof \Drupal\node\Entity\Node) {
+        $operations['clone'] = [
+          'title' =&gt; t('Clone'),
+          'url' =&gt; \Drupal\Core\Url::fromRoute('clone_nodes',['id' =&gt; $entity-&gt;id()]),
+          'weight' =&gt; 150,
+        ];
+    }
+
+    return $operations;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we only need the Controller and that will be different if you are using paragraphs or not.</p>
+</div>
+<div class="sect2">
+<h3 id="_controller_without_paragraphs">Controller without Paragraphs</h3>
+<div class="paragraph">
+<p>After searching for this solution I found that Drupal 8 Entity API has <a href="https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Entity%21Entity.php/function/Entity%3A%3AcreateDuplicate/8.2.x">createDuplicate method</a> so I used that.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CloneController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+namespace Drupal\clone_nodes\Controller;
+
+use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\node\Entity\Node;
+
+class CloneController extends ControllerBase
+{
+
+    public function clone($id)
+    {
+        $node = Node::load($id);
+        if ($node === null) {
+            drupal_set_message(t('Node with id @id does not exist.', ['@id' =&gt; $id]), 'error');
+        } else {
+
+            $nodeDuplicate = $node-&gt;createDuplicate();
+            //edit title or something so you can find cloned
+            $nodeDuplicate-&gt;save();
+
+            drupal_set_message(
+            	t("Node has been created. &lt;a href='/node/@id/edit' target='_blank'&gt;Edit now&lt;/a&gt;", [
+                  '@id' =&gt; $nodeDuplicate-&gt;id(),
+                  '@title' =&gt; $nodeDuplicate-&gt;getTitle()]
+            	 ), 'status');
+        }
+
+        return new RedirectResponse('/admin/content');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you create duplicate of node you can edit title or something so you can distinguish original from cloned, but the only difference that I saw was that cloned Node doesn&#8217;t have alias url becuase that stays bound to original.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_controller_with_paragraphs">Controller with Paragraphs</h3>
+<div class="paragraph">
+<p>The only difference is that you have to duplicate every paragraphs field that is connected to node, so we will just add this part of code :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">foreach ($nodeDuplicate-&gt;field_paragraphs as $field) {
+    $field-&gt;entity = $field-&gt;entity-&gt;createDuplicate();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code><strong>field_paragraphs</strong></code> is machine name I used for my paragraphs field in Content Type, be sure to changed it to match yours.</p>
+</div>
+<div class="paragraph">
+<p>So our Controller now looks like :</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CloneController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+namespace Drupal\clone_nodes\Controller;
+
+use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\node\Entity\Node;
+
+class CloneController extends ControllerBase
+{
+
+    public function clone($id)
+    {
+        $node = Node::load($id);
+        if ($node === null) {
+            drupal_set_message(t('Node with id @id does not exist.', ['@id' =&gt; $id]), 'error');
+        } else {
+
+            $nodeDuplicate = $node-&gt;createDuplicate();
+
+            foreach ($nodeDuplicate-&gt;field_paragraphs as $field) {
+                $field-&gt;entity = $field-&gt;entity-&gt;createDuplicate();
+            }
+
+            //edit title or something so you can find cloned
+            $nodeDuplicate-&gt;save();
+
+            drupal_set_message(
+            	t("Node has been created. &lt;a href='/node/@id/edit' target='_blank'&gt;Edit now&lt;/a&gt;", [
+                  '@id' =&gt; $nodeDuplicate-&gt;id(),
+                  '@title' =&gt; $nodeDuplicate-&gt;getTitle()]
+            	 ), 'status');
+        }
+
+        return new RedirectResponse('/admin/content');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I hope this helps someone with this problem and until some old clone module is ported to Drupal 8 I guess this will have to do it.</p>
+</div>
+</div>
+</div>
+</div>
+        </section>
+
+        <footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://kunicmarko20.github.io/author/kunicmarko20/" style="background-image: url(https://avatars0.githubusercontent.com/u/13528674?v&#x3D;3)"><span class="hidden">Marko Kunic's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h4><a href="https://kunicmarko20.github.io/author/kunicmarko20/">Marko Kunic</a></h4>
+
+                    <p>Read <a href="https://kunicmarko20.github.io/author/kunicmarko20/">more posts</a> by this author.</p>
+                <div class="author-meta">
+                    <span class="author-location icon-location">Serbia</span>
+                    <span class="author-link icon-link"><a href="https://github.com/kunicmarko20">https://github.com/kunicmarko20</a></span>
+                </div>
+            </section>
+
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Duplicate%20Node%20with%20Paragraphs%20field%20in%20Drupal%208&amp;url=https://kunicmarko20.github.io/2017/05/04/Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://kunicmarko20.github.io/2017/05/04/Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://kunicmarko20.github.io/2017/05/04/Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+
+    </article>
+
+</main>
+
+<aside class="read-next">
+</aside>
+
+
+
+        <footer class="site-footer clearfix">
+            <section class="copyright"><a href="https://kunicmarko20.github.io">Marko Kunic</a> &copy; 2017</section>
+            <section class="poweredby">Proudly published with <a href="http://hubpress.io">HubPress</a></section>
+        </footer>
+
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+       
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+    <script type="text/javascript" src="//kunicmarko20.github.io/themes/casper/assets/js/jquery.fitvids.js?v=1493893814356"></script>
+    <script type="text/javascript" src="//kunicmarko20.github.io/themes/casper/assets/js/index.js?v=1493893814356"></script>
+
+</body>
+</html>
