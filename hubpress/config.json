@@ -6,12 +6,12 @@
     "cname": ""
   },
   "theme": {
-    "name": "uno-zen"
+    "name": "casper"
   },
   "urls": {
     "site": "https://kunicmarko20.github.io",
     "hubpress": "https://kunicmarko20.github.io",
-    "theme": "//kunicmarko20.github.io/themes/ghostium",
+    "theme": "//kunicmarko20.github.io/themes/uno-zen",
     "images": "https://kunicmarko20.github.io/images"
   },
   "initialisationConfigComponent": {
