@@ -6,12 +6,12 @@
     "cname": ""
   },
   "theme": {
-    "name": "uno"
+    "name": "ichi"
   },
   "urls": {
     "site": "https://kunicmarko20.github.io",
     "hubpress": "https://kunicmarko20.github.io",
-    "theme": "//kunicmarko20.github.io/themes/uno-zen",
+    "theme": "//kunicmarko20.github.io/themes/uno",
     "images": "https://kunicmarko20.github.io/images"
   },
   "initialisationConfigComponent": {
