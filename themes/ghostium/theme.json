@@ -4,6 +4,7 @@
     "error": "default.hbs",
     "index": "index.hbs",
     "page": "page.hbs",
+    "author": "author.hbs",
     "post": "post.hbs",
     "tag": "tag.hbs",
     "footer": "partials/footer.hbs",
