@@ -5,9 +5,12 @@ Marko Kunic <kunicmarko20@gmail.com>
 
 Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so I had to find some kind of solution. You can check my short answer on https://drupal.stackexchange.com/a/230035[stackoverflow] or continue reading this.
 
-Code from this text can also be found https://gist.github.com/kunicmarko20/d1fcb622bda26f9707f6ff96297f2090[here].
+NOTE: At the time of this writing, there is still no stable modules for cloning.
 
-WARNING: At the time of this writing, there is still no stable modules for cloning.
+'''
+*TL;DR*: Code for this can be found https://gist.github.com/kunicmarko20/d1fcb622bda26f9707f6ff96297f2090[here]. 
+
+'''
 
 What if we add https://www.drupal.org/project/paragraphs[Paragraphs module]? Great solution for page builder in Drupal, be sure to check it out. I will explain how to create clones of your Nodes with or without Paragraphs.
 
