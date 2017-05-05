@@ -5,13 +5,12 @@ Marko Kunic <kunicmarko20@gmail.com>
 
 https://sonata-project.org/bundles/admin/3-x/doc/index.html[Sonata Admin] is Admin Generator for https://symfony.com/[Symfony], and it is something that I use on almost every project. In this post, I will explain how to add an option for export to Sonata Admin. As you already know Sonata Admin has default exports formats (xls, xml, json, csv) but I needed one more, I needed to export to never version of excel (Excel2007).
 
-NOTE: You can take parts that you need and create a new export to something else, but this is the best way I found to do this..
+NOTE: You can take parts that you need and create a new export to something else, but this is the best way I found to do this.
 
-'''
+''''''''''''''''''''''''''''''
 *TL;DR*: Code for this can be found https://gist.github.com/kunicmarko20/e0292280344761efbc7ff376f7080fec[here]. 
 
-'''
-
+''''''''''''''''''''''''''''''
 == What are we going to do ?
 Following the example of current https://github.com/sonata-project/exporter/tree/1.x/src/Writer[Sonata Exporter Writers] we need to create a custom writer, we need to overwrite https://github.com/sonata-project/SonataCoreBundle/blob/3.x/Exporter/Exporter.php[Sonata Exporter] from https://github.com/sonata-project/SonataCoreBundle[SonataCoreBundle] with our own and we need to edit our AdminClass to accept new type.
 
