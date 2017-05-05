@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 05 May 2017 08:16:42 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Sonata Admin Custom Export Format]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 05 May 2017 08:20:01 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Sonata Admin Custom Export Format]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://sonata-project.org/bundles/admin/3-x/doc/index.html">Sonata Admin</a> is Admin Generator for <a href="https://symfony.com/">Symfony</a>, and it is something that I use on almost every project. In this post, I will explain how to add an option for export to Sonata Admin. As you already know Sonata Admin has default exports formats (xls, xml, json, csv) but I needed one more, I needed to export to never version of excel (Excel2007).</p>
@@ -329,14 +329,11 @@ class YourAdmin extends AbstractAdmin
 <div class="paragraph">
 <p>Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so I had to find some kind of solution. You can check my short answer on <a href="https://drupal.stackexchange.com/a/230035">stackoverflow</a> or continue reading this.</p>
 </div>
-<div class="paragraph">
-<p>Code from this text can also be found <a href="https://gist.github.com/kunicmarko20/d1fcb622bda26f9707f6ff96297f2090">here</a>.</p>
-</div>
-<div class="admonitionblock warning">
+<div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 At the time of this writing, there is still no stable modules for cloning.
@@ -344,6 +341,11 @@ At the time of this writing, there is still no stable modules for cloning.
 </tr>
 </table>
 </div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/d1fcb622bda26f9707f6ff96297f2090">here</a>.</p>
+</div>
+<hr>
 <div class="paragraph">
 <p>What if we add <a href="https://www.drupal.org/project/paragraphs">Paragraphs module</a>? Great solution for page builder in Drupal, be sure to check it out. I will explain how to create clones of your Nodes with or without Paragraphs.</p>
 </div>
