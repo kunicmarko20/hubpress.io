@@ -1,4 +1,72 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 05 May 2017 19:41:12 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Sonata Admin Custom Export Format]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 06 May 2017 10:58:19 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Migrate Images to Sonata Media]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://sonata-project.org/bundles/media/3-x/doc/index.html">Sonata Media</a>  another great bundle that we get from <a href="https://sonata-project.org/bundles">Sonata-Project</a> family. Sonata Media is a bundle for media management and like any other bundles from Sonata-Project, documentation sucks. Maybe you are transferring some old project to Symfony or you decided that Sonata Media is something you need and you have some images attached, in my case, it was a lot of images. I will explain how I dealt with this problem and what was the best way I found to solve it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upload_image_programmatically">Upload Image Programmatically</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This will be a simple example of how to save image as Media Object.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">$item; //Entity where you added Sonata Media field
+$mediaManager = $this-&gt;get("sonata.media.manager.media");
+$media = new \Application\Sonata\MediaBundle\Entity\Media();
+
+$media-&gt;setBinaryContent("/path/to/your/old/image");
+$media-&gt;setContext('default'); //contex you are using
+$media-&gt;setProviderName('sonata.media.provider.image');
+
+$mediaManager-&gt;save($media);
+$item-&gt;setImage($media);
+//call entity manager and save object</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So now you created Media Object and saved to your new Entity.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_migrating_images_and_galleries">Migrating Images and Galleries</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here is the code I used to migrate everything and I thought it would be cleaner if you just look at <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412">gist</a>.</p>
+</div>
+<div class="paragraph">
+<p>I created a Symfony Command that I registered as service and passed sonata managers and upload directory, also to avoid command timeout I:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Disabled SQLLoger on  <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L53">line 53</a></p>
+</li>
+<li>
+<p>Used garbage collection on <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L65">line 65</a> and <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L87">line 87</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L78">Flushed objects after every 10 iterations</a> and <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L84">detached them</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images and I just wanted to avoid timeout. This script took longer time because of precautions I took to avoid timeout but after 5000 images there was no timeout, it was worth it.</p>
+</div>
+<div class="paragraph">
+<p>If you are stuck at <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L102">line 102</a>, maybe you can create Entities from old database tables and then get all galleries or images, maybe you can create <a href="http://symfony.com/doc/current/doctrine/multiple_entity_managers.html">additional connection</a> and <a href="http://symfony.com/doc/current/doctrine/reverse_engineering.html">import that database as another bundle</a>, where you would call separate entity manager connection for every database and then grab images from old database.</p>
+</div>
+<div class="paragraph">
+<p>I just checked gist and I see the code is not up to <a href="http://www.php-fig.org/psr/">PHP Coding Style Standards</a> also I see a lot of space for refactoring but I am currently out of time to change that and I encourage you to read about PSRs and follow Standards.</p>
+</div>
+<div class="paragraph">
+<p>Hope this helps someone and if you are stuck somewhere with this, feel free to <a href="mailto:kunicmarko20@gmail.com">email me</a> for help.</p>
+</div>
+</div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Sonata Media]]></category><category><![CDATA[Sonata Media Migrate]]></category><category><![CDATA[Sonata Admin]]></category><category><![CDATA[Migrate Images]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sat, 06 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Sonata Admin Custom Export Format]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://sonata-project.org/bundles/admin/3-x/doc/index.html">Sonata Admin</a> is Admin Generator for <a href="https://symfony.com/">Symfony</a>, and it is something that I use on almost every project. In this post, I will explain how to add an option for export to Sonata Admin. As you already know Sonata Admin has default exports formats (xls, xml, json, csv) but I needed one more, I needed to export to never version of excel (Excel2007).</p>
