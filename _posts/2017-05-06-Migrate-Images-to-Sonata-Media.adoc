@@ -33,7 +33,7 @@ I created a Symfony Command that I registered as service and passed sonata manag
 * Used garbage collection on https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L65[line 65] and https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L87[line 87]
 * https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L78[Flushed objects after every 10 iterations] and https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L84[detached them]
 
-You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images and I just wanted to avoid timeout. This script took longer time because of precautions I took to avoid timeout but after 5000 images there was no timeout, it was worth it.
+You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images. This script took longer time because of precautions I took but after 5000 images there was no timeout, it was worth it.
 
 If you are stuck at https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L102[line 102], maybe you can create Entities from old database tables and then get all galleries or images, maybe you can create http://symfony.com/doc/current/doctrine/multiple_entity_managers.html[additional connection] and http://symfony.com/doc/current/doctrine/reverse_engineering.html[import that database as another bundle], where you would call separate entity manager connection for every database and then grab images from old database.
 
