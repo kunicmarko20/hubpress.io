@@ -29,9 +29,9 @@
     <link href="//fonts.googleapis.com/" rel="dns-prefetch">
     <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
 
-    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1494068299735"/>
-    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1494068299735"/>
-    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1494068299735"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1494068497393"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1494068497393"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1494068497393"/>
 
 
 
@@ -61,7 +61,7 @@
       GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
     </script>
 
-    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1494068299735"></script>
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1494068497393"></script>
 
     <link rel="canonical" href="https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html" />
     <meta name="referrer" content="origin" />
@@ -255,7 +255,7 @@ $item-&gt;setImage($media);
 </ul>
 </div>
 <div class="paragraph">
-<p>You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images and I just wanted to avoid timeout. This script took longer time because of precautions I took to avoid timeout but after 5000 images there was no timeout, it was worth it.</p>
+<p>You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images. This script took longer time because of precautions I took but after 5000 images there was no timeout, it was worth it.</p>
 </div>
 <div class="paragraph">
 <p>If you are stuck at <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L102">line 102</a>, maybe you can create Entities from old database tables and then get all galleries or images, maybe you can create <a href="http://symfony.com/doc/current/doctrine/multiple_entity_managers.html">additional connection</a> and <a href="http://symfony.com/doc/current/doctrine/reverse_engineering.html">import that database as another bundle</a>, where you would call separate entity manager connection for every database and then grab images from old database.</p>
@@ -333,7 +333,7 @@ $item-&gt;setImage($media);
        
     <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
-    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1494068299735"></script>
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1494068497393"></script>
 
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
