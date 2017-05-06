@@ -1,0 +1,44 @@
+= Migrate Images to Sonata Media
+Marko Kunic <kunicmarko20@gmail.com>
+:published_at: 2017-05-06
+:hp-tags: Symfony, Sonata Media, Sonata Media Migrate, Sonata Admin, Migrate Images
+
+https://sonata-project.org/bundles/media/3-x/doc/index.html[Sonata Media]  another great bundle that we get from https://sonata-project.org/bundles[Sonata-Project] family. Sonata Media is a bundle for media management and like any other bundles from Sonata-Project, documentation sucks. Maybe you are transferring some old project to Symfony or you decided that Sonata Media is something you need and you have some images attached, in my case, it was a lot of images. I will explain how I dealt with this problem and what was the best way I found to solve it.
+
+== Upload Image Programmatically
+This will be a simple example of how to save image as Media Object.
+
+[source,php]
+----
+$item; //Entity where you added Sonata Media field
+$mediaManager = $this->get("sonata.media.manager.media");
+$media = new \Application\Sonata\MediaBundle\Entity\Media();
+
+$media->setBinaryContent("/path/to/your/old/image"); 
+$media->setContext('default'); //contex you are using 
+$media->setProviderName('sonata.media.provider.image');
+
+$mediaManager->save($media);
+$item->setImage($media);
+//call entity manager and save object
+----
+So now you created Media Object and saved to your new Entity.
+
+== Migrating Images and Galleries
+Here is the code I used to migrate everything and I thought it would be cleaner if you just look at https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412[gist].
+
+I created a Symfony Command that I registered as service and passed sonata managers and upload directory, also to avoid command timeout I:
+
+* Disabled SQLLoger on  https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L53[line 53] 
+* Used garbage collection on https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L65[line 65] and https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L87[line 87]
+* https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L78[Flushed objects after every 10 iterations] and https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L84[detached them]
+
+You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images and I just wanted to avoid timeout. This script took longer time because of precautions I took to avoid timeout but after 5000 images there was no timeout, it was worth it.
+
+If you are stuck at https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L102[line 102], maybe you can create Entities from old database tables and then get all galleries or images, maybe you can create http://symfony.com/doc/current/doctrine/multiple_entity_managers.html[additional connection] and http://symfony.com/doc/current/doctrine/reverse_engineering.html[import that database as another bundle], where you would call separate entity manager connection for every database and then grab images from old database.
+
+I just checked gist and I see the code is not up to http://www.php-fig.org/psr/[PHP Coding Style Standards] also I see a lot of space for refactoring but I am currently out of time to change that and I encourage you to read about PSRs and follow Standards.
+
+Hope this helps someone and if you are stuck somewhere with this, feel free to mailto:kunicmarko20@gmail.com[email me] for help.
+
+
