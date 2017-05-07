@@ -1,4 +1,103 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 06 May 2017 11:01:37 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Migrate Images to Sonata Media]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 07 May 2017 12:46:44 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Don't forget to Reduce the number of Queries!]]></title><description><![CDATA[<div class="paragraph">
+<p>This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading <a href="https://speakerdeck.com/afilina/speed-up-your-database-300-times">Speed Up Your Database 300 Times</a> and at slide number 6 there it was <code><strong><em>“Use JOIN to get all related data in one go.”</em></strong></code> the one thing I forgot that I shouldn&#8217;t, <code><strong>Use JOIN</strong></code>. I read about that long time ago on <a href="https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries">KnpUniversity</a> (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out).</p>
+</div>
+<div class="paragraph">
+<p>The first thing I did was to check my current application I was working on. It wasn&#8217;t a big application, it was a form with a lot of fields, Entity translations and images but then I saw it in web profiler, that form was making around 60 queries. After reading everything from web profiler I saw that for every store I listed with <code><strong>&#8594;findAll()</strong></code> doctrine was making additional query when I asked for city where store was, so I created method in my Entity repository:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StoreRepository.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class StoreRepository extends EntityRepository
+{
+    public function getAllStores()
+    {
+        $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('store')
+            -&gt;from('AppBundle:Store', 'store')
+                -&gt;leftjoin('store.city', 'city')
+                -&gt;addSelect('city');
+        return $qb-&gt;getQuery()-&gt;getResult();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I replaced every <code><strong>&#8594;findAll()</strong></code> and <code><strong>&#8594;findBy()</strong></code> with custom repository methods but that wasn&#8217;t enough, there was still some additional queries. <a href="http://symfony.com/doc/current/reference/forms/types/entity.html">EntityType Field</a> was the next problem, I wasn&#8217;t aware that if you write something like this inside of your FormType:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use AppBundle\Entity\Category;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            -&gt;add('category', EntityType::class, [
+                'class' =&gt; Category::class
+                ]);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>you get the same problem as before, for everything that was a relationship inside of Category Entity doctrine will create a query for every info you request, in my case it was translations. Code for categories became:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use AppBundle\Entity\Category;
+use AppBundle\Repository\CategoryRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            -&gt;add('category', EntityType::class, [
+                'class' =&gt; StorageCategory::class,
+                'query_builder' =&gt; function (CategoryRepository $er) {
+                    return $er-&gt;getAllCategories();
+                }
+            ]);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only difference from Store Repository example from before is that EntityType requested QueryBuilder object instead of results, so that looked like:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CategoryRepository.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class CategoryRepository extends EntityRepository
+{
+    public function getAllCategories()
+    {
+        $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('category')
+            -&gt;from('AppBundle:Category', 'category')
+                -&gt;leftjoin('category.translations', 'categoryTranslations')
+                -&gt;addSelect('categoryTranslations');
+        return $qb; //returns just QueryBuilder
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I did this for every EntityType field and at the end, my form was making just 6 queries, 10 times less than when I started. I hope this helps you and you do not forget to do this, I know that after this I won&#8217;t forget.</p>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Doctrine]]></category><category><![CDATA[Doctrine Queries]]></category><category><![CDATA[Database]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sun, 07 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Migrate Images to Sonata Media]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://sonata-project.org/bundles/media/3-x/doc/index.html">Sonata Media</a>  another great bundle that we get from <a href="https://sonata-project.org/bundles">Sonata-Project</a> family. Sonata Media is a bundle for media management and like any other bundles from Sonata-Project, documentation sucks. Maybe you are transferring some old project to Symfony or you decided that Sonata Media is something you need and you have some images attached, in my case, it was a lot of images. I will explain how I dealt with this problem and what was the best way I found to solve it.</p>

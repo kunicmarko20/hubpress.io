@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Don&#x27;t forget to Reduce the number of Queries!</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+    <!-- <meta name="twitter:site" content="">
+
+<meta name="twitter:creator" content="">
+
+<meta name="google-site-verification" content="">
+
+<meta property="fb:admins" content="">
+ -->
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link href="//fonts.googleapis.com/" rel="dns-prefetch">
+    <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
+
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1494161204927"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1494161204927"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1494161204927"/>
+
+
+
+
+    <script type="text/javascript">
+      var ga_ua = 'UA-XXXXX-X';
+      
+      var disqus_shortname = 'example';
+      
+      var enable_pjax = true;
+
+      // Pace Options
+      // ==============
+      window.paceOptions = {
+        catchupTime: 100,
+        minTime: 100,
+        elements: false,
+        restartOnRequestAfter: 500,
+        startOnPageLoad: false
+      }
+
+      // Ghostium Globals
+      // ==============
+      window.GHOSTIUM = {};
+      GHOSTIUM.haveGA = typeof ga_ua !== 'undefined' && ga_ua !== 'UA-XXXXX-X';
+      GHOSTIUM.haveDisqus = typeof disqus_shortname !== 'undefined' && disqus_shortname !== 'example';
+      GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
+    </script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1494161204927"></script>
+
+    <link rel="canonical" href="https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Marko Kunic" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Don&#x27;t forget to Reduce the number of Queries!" />
+    <meta property="og:description" content="This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading Speed Up Your Database 300 Times and at slide number 6 there it was “Use JOIN to get all related data in one go.” the one thing I forgot that" />
+    <meta property="og:url" content="https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html" />
+    <meta property="article:published_time" content="2017-05-07T00:00:00.000Z" />
+    <meta property="article:tag" content="Symfony" />
+    <meta property="article:tag" content="Doctrine" />
+    <meta property="article:tag" content="Doctrine Queries" />
+    <meta property="article:tag" content="Database" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Don&#x27;t forget to Reduce the number of Queries!" />
+    <meta name="twitter:description" content="This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading Speed Up Your Database 300 Times and at slide number 6 there it was “Use JOIN to get all related data in one go.” the one thing I forgot that" />
+    <meta name="twitter:url" content="https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Marko Kunic",
+    "author": {
+        "@type": "Person",
+        "name": "Marko Kunic",
+        "image": "https://avatars0.githubusercontent.com/u/13528674?v=3",
+        "url": "https://kunicmarko20.github.io/author/kunicmarko20/",
+        "sameAs": "https://github.com/kunicmarko20"
+    },
+    "headline": "Don&#x27;t forget to Reduce the number of Queries!",
+    "url": "https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html",
+    "datePublished": "2017-05-07T00:00:00.000Z",
+    "keywords": "Symfony, Doctrine, Doctrine Queries, Database",
+    "description": "This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading Speed Up Your Database 300 Times and at slide number 6 there it was “Use JOIN to get all related data in one go.” the one thing I forgot that"
+}
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Marko Kunic" href="https://kunicmarko20.github.io/rss/" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+  </head>
+  <body class="post-template tag-Symfony tag-Doctrine tag-Doctrine-Queries tag-Database">
+
+    <button data-action="open-drawer" id="drawer-button" class="drawer-button"><i class="fa fa-bars"></i></button>
+    <nav tabindex="-1" class="drawer">
+      <div class="drawer-container">
+        <!--.drawer-search(role="search")-->
+        <ul role="navigation" class="drawer-list">
+          
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" data-pjax>
+              <i class="fa fa-home"></i>Home
+            </a>
+          </li>
+          <!-- <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" title="Marko Kunic" data-pjax>
+              <i class="fa fa-list-alt"></i>All posts
+            </a>
+          </li> -->
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io/rss/">
+              <i class="fa fa-rss"></i>Subscribe to Feed
+            </a>
+          </li>
+          <li class="drawer-list-divider"></li>
+          <li class="drawer-list-item drawer-list-title">
+            Follow me
+          </li>
+          
+          
+          <li class="drawer-list-item">
+            <a href="https://github.com/kunicmarko20" title="Github" target="_blank">
+              <i class="fa fa-github"></i>Github
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="http://rs.linkedin.com/in/kunicmarko20" title="LinkedIn" target="_blank">
+              <i class="fa fa-linkedin"></i>LinkedIn
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="mailto:kunicmarko20@gmail.com" title="Email" target="_blank">
+              <i class="fa fa-envelope-o"></i>Email
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="drawer-overlay"></div>
+    <main id="container" role="main" class="container">
+      <div class="surface">
+        <div class="surface-container">
+          <div data-pjax-container class="content">
+            
+<section class="wrapper wrapper-post">
+  <div class="wrapper-container">
+    <article itemscope itemtype="http://schema.org/BlogPosting" role="article" class="post post tag-Symfony tag-Doctrine tag-Doctrine-Queries tag-Database">
+        <section class="post-container">
+          <header class="post-header">
+            <ul class="post-meta-list">
+              <li class="post-meta-item">
+                <time datetime="2017-05-07" itemprop="datePublished">
+                  15 hours ago
+                </time>
+              </li>
+                <li class="post-meta-item">
+                  <span class="tags"><i class="fa fa-tags"></i>
+                      <span>
+                      <a href="https://kunicmarko20.github.io/tag/Symfony/">Symfony</a>, <a href="https://kunicmarko20.github.io/tag/Doctrine/">Doctrine</a>, <a href="https://kunicmarko20.github.io/tag/Doctrine-Queries/">Doctrine Queries</a>, <a href="https://kunicmarko20.github.io/tag/Database/">Database</a></span>
+                  </span>
+                </li>
+              <li class="post-meta-item">
+                <a href="#disqus_thread" data-disqus-identifier="">Comments</a>
+              </li>
+            </ul>
+            <h1 itemprop="name headline" class="post-title"><a href="https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html" itemprop="url" data-pjax title="Don&#x27;t forget to Reduce the number of Queries!">Don&#x27;t forget to Reduce the number of Queries!</a></h1>
+            <!--h2 itemprop="about" class="post-subtitle"></h2-->
+          </header>
+          <aside class="post-side">
+            <div class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img src="https://avatars0.githubusercontent.com/u/13528674?v&#x3D;3" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <a href="https://github.com/kunicmarko20" class="post-author-name">
+                  Marko Kunic
+                </a>
+                <p class="post-author-bio"></p>
+              </div>
+            </div>
+          </aside>
+          <div itemprop="articleBody" class="post-body">
+            <div class="paragraph">
+<p>This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading <a href="https://speakerdeck.com/afilina/speed-up-your-database-300-times">Speed Up Your Database 300 Times</a> and at slide number 6 there it was <code><strong><em>“Use JOIN to get all related data in one go.”</em></strong></code> the one thing I forgot that I shouldn&#8217;t, <code><strong>Use JOIN</strong></code>. I read about that long time ago on <a href="https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries">KnpUniversity</a> (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out).</p>
+</div>
+<div class="paragraph">
+<p>The first thing I did was to check my current application I was working on. It wasn&#8217;t a big application, it was a form with a lot of fields, Entity translations and images but then I saw it in web profiler, that form was making around 60 queries. After reading everything from web profiler I saw that for every store I listed with <code><strong>&#8594;findAll()</strong></code> doctrine was making additional query when I asked for city where store was, so I created method in my Entity repository:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StoreRepository.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class StoreRepository extends EntityRepository
+{
+    public function getAllStores()
+    {
+        $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('store')
+            -&gt;from('AppBundle:Store', 'store')
+                -&gt;leftjoin('store.city', 'city')
+                -&gt;addSelect('city');
+        return $qb-&gt;getQuery()-&gt;getResult();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I replaced every <code><strong>&#8594;findAll()</strong></code> and <code><strong>&#8594;findBy()</strong></code> with custom repository methods but that wasn&#8217;t enough, there was still some additional queries. <a href="http://symfony.com/doc/current/reference/forms/types/entity.html">EntityType Field</a> was the next problem, I wasn&#8217;t aware that if you write something like this inside of your FormType:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use AppBundle\Entity\Category;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            -&gt;add('category', EntityType::class, [
+                'class' =&gt; Category::class
+                ]);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>you get the same problem as before, for everything that was a relationship inside of Category Entity doctrine will create a query for every info you request, in my case it was translations. Code for categories became:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use AppBundle\Entity\Category;
+use AppBundle\Repository\CategoryRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            -&gt;add('category', EntityType::class, [
+                'class' =&gt; StorageCategory::class,
+                'query_builder' =&gt; function (CategoryRepository $er) {
+                    return $er-&gt;getAllCategories();
+                }
+            ]);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only difference from Store Repository example from before is that EntityType requested QueryBuilder object instead of results, so that looked like:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CategoryRepository.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class CategoryRepository extends EntityRepository
+{
+    public function getAllCategories()
+    {
+        $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('category')
+            -&gt;from('AppBundle:Category', 'category')
+                -&gt;leftjoin('category.translations', 'categoryTranslations')
+                -&gt;addSelect('categoryTranslations');
+        return $qb; //returns just QueryBuilder
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I did this for every EntityType field and at the end, my form was making just 6 queries, 10 times less than when I started. I hope this helps you and you do not forget to do this, I know that after this I won&#8217;t forget.</p>
+</div>
+          </div>
+          <footer class="post-footer">
+            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img itemprop="image" src="https://avatars0.githubusercontent.com/u/13528674?v&#x3D;3" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <h4 class="post-footer-heading">Written By</h4>
+                <a href="https://github.com/kunicmarko20" itemprop="url" class="post-author-name">
+                  <span itemprop="name">Marko Kunic</span>
+                </a>
+                <p itemprop="description" class="post-author-bio"></p>
+                  <p class="post-author-location">Serbia</p>
+                  <p class="post-author-website">
+                    <a href="https://github.com/kunicmarko20" rel="nofollow">https://github.com/kunicmarko20</a>
+                  </p>
+                <p class="post-info">
+                  <b class="post-info-title">Published on</b>
+                  <time class="post-date">May 07, 2017</time>
+                </p>
+              </div>
+            </div>
+            <div class="post-social">
+              <h4 class="post-footer-heading">Spread the word</h4>
+              <a href="#" data-action="share-twitter"><i class="fa fa-fw fa-lg fa-twitter"></i></a>
+              <a href="#" data-action="share-facebook"><i class="fa fa-fw fa-lg fa-facebook"></i></a>
+              <a href="#" data-action="share-gplus"><i class="fa fa-fw fa-lg fa-google-plus"></i></a>
+            </div>
+          </footer>
+        </section>
+      <section itemprop="comment" class="post-comments">
+        <div id="disqus_thread"></div>
+      </section>
+    </article>
+
+    <footer role="contentinfo" class="footer">
+      <p><small>Copyright &copy; <span itemprop="copyrightHolder">Marko Kunic</span>. 2017. All Rights Reserved.</small></p>
+      <p><small><a href="http://ghostium.oswaldoacauan.com/" target="_blank">Ghostium Theme</a> by <a href="http://twitter.com/oswaldoacauan" target="_blank">@oswaldoacauan</a></small></p>
+      <p><small>Adapted by <a href="https://twitter.com/mgreau">Maxime Gréau</a></small></p>
+      <p><small>Published with <a href="http://hubpress.io">HubPress</a></small></p>
+    </footer>
+  </div>
+</section>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+       
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1494161204927"></script>
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-62123240-3', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+  </body>
+</html>
