@@ -29,9 +29,9 @@
     <link href="//fonts.googleapis.com/" rel="dns-prefetch">
     <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
 
-    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1494161204927"/>
-    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1494161204927"/>
-    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1494161204927"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1494161340304"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1494161340304"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1494161340304"/>
 
 
 
@@ -61,7 +61,7 @@
       GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
     </script>
 
-    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1494161204927"></script>
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1494161340304"></script>
 
     <link rel="canonical" href="https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html" />
     <meta name="referrer" content="origin" />
@@ -261,7 +261,7 @@ public function buildForm(FormBuilderInterface $builder, array $options)
 {
         $builder
             -&gt;add('category', EntityType::class, [
-                'class' =&gt; StorageCategory::class,
+                'class' =&gt; Category::class,
                 'query_builder' =&gt; function (CategoryRepository $er) {
                     return $er-&gt;getAllCategories();
                 }
@@ -363,7 +363,7 @@ class CategoryRepository extends EntityRepository
        
     <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
-    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1494161204927"></script>
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1494161340304"></script>
 
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
