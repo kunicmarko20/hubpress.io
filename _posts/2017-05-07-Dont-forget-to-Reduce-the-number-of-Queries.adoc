@@ -59,7 +59,7 @@ public function buildForm(FormBuilderInterface $builder, array $options)
 {
         $builder
             ->add('category', EntityType::class, [
-                'class' => StorageCategory::class,
+                'class' => Category::class,
                 'query_builder' => function (CategoryRepository $er) {
                     return $er->getAllCategories();
                 }
