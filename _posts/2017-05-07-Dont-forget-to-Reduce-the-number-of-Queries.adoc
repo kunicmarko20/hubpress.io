@@ -1,0 +1,94 @@
+= Don't forget to Reduce the number of Queries!
+Marko Kunic <kunicmarko20@gmail.com>
+:published_at: 2017-05-07
+:hp-tags: Symfony, Doctrine, Doctrine Queries, Database
+
+This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading https://speakerdeck.com/afilina/speed-up-your-database-300-times[Speed Up Your Database 300 Times] and at slide number 6 there it was `*_“Use JOIN to get all related data in one go.”_*` the one thing I forgot that I shouldn't, `*Use JOIN*`. I read about that long time ago on https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries[KnpUniversity] (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out). 
+
+The first thing I did was to check my current application I was working on. It wasn't a big application, it was a form with a lot of fields, Entity translations and images but then I saw it in web profiler, that form was making around 60 queries. After reading everything from web profiler I saw that for every store I listed with `*->findAll()*` doctrine was making additional query when I asked for city where store was, so I created method in my Entity repository: 
+
+[[app-listing]]
+[source,php]
+.StoreRepository.php
+----
+<?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class StoreRepository extends EntityRepository
+{
+    public function getAllStores()
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('store')
+            ->from('AppBundle:Store', 'store')
+                ->leftjoin('store.city', 'city')
+                ->addSelect('city');
+        return $qb->getQuery()->getResult();
+    }
+}
+----
+I replaced every `*->findAll()*` and `*->findBy()*` with custom repository methods but that wasn't enough, there was still some additional queries. http://symfony.com/doc/current/reference/forms/types/entity.html[EntityType Field] was the next problem, I wasn't aware that if you write something like this inside of your FormType:
+[source,php]
+----
+<?php
+
+use AppBundle\Entity\Category;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            ->add('category', EntityType::class, [
+                'class' => Category::class
+                ]);
+}
+----
+you get the same problem as before, for everything that was a relationship inside of Category Entity doctrine will create a query for every info you request, in my case it was translations. Code for categories became:
+[source,php]
+----
+<?php
+
+use AppBundle\Entity\Category;
+use AppBundle\Repository\CategoryRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            ->add('category', EntityType::class, [
+                'class' => StorageCategory::class,
+                'query_builder' => function (CategoryRepository $er) {
+                    return $er->getAllCategories();
+                }
+            ]);
+}
+----
+
+The only difference from Store Repository example from before is that EntityType requested QueryBuilder object instead of results, so that looked like:
+[[app-listing]]
+[source,php]
+.CategoryRepository.php
+----
+<?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class CategoryRepository extends EntityRepository
+{
+    public function getAllCategories()
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('category')
+            ->from('AppBundle:Category', 'category')
+                ->leftjoin('category.translations', 'categoryTranslations')
+                ->addSelect('categoryTranslations');
+        return $qb; //returns just QueryBuilder
+    }
+}
+----
+I did this for every EntityType field and at the end, my form was making just 6 queries, 10 times less than when I started. I hope this helps you and you do not forget to do this, I know that after this I won't forget.
