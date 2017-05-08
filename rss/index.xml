@@ -1,4 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 07 May 2017 12:54:39 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Don't forget to Reduce the number of Queries!]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 08 May 2017 20:27:38 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Static Translations Bundle]]></title><description><![CDATA[<div class="paragraph">
+<p>This is a small presentation of a <a href="https://github.com/kunicmarko20/static-translations">Static Translations Bundle</a> I wrote for Symfony that made my hand hurt less.</p>
+</div>
+<div class="paragraph">
+<p>If you are not using something like <a href="https://github.com/lexik/LexikTranslationBundle">LexikTranslationBundle</a> or <a href="https://github.com/ibrows/IbrowsSonataTranslationBundle">IbrowsSonataTranslationBundle</a> (LexikTranslationBundle integrated to Sonata Admin) then this is a bundle for you.</p>
+</div>
+<div class="paragraph">
+<p>If you ever created a Multilingual website with Symfony, you know that for every language you can create an xml file for hard coded strings. In every language file, there is a same <code><strong>trans-unit</strong></code> element for every string that needs translation where the <code><strong>target</strong></code> is the only different thing based on language.</p>
+</div>
+<div class="listingblock">
+<div class="title">en</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;trans-unit id="post"&gt;
+    &lt;source&gt;Post&lt;/source&gt;
+    &lt;target&gt;Post&lt;/target&gt;
+&lt;/trans-unit&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">es</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;trans-unit id="post"&gt;
+    &lt;source&gt;Post&lt;/source&gt;
+    &lt;target&gt;Enviar&lt;/target&gt;
+&lt;/trans-unit&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Instead of copying every translation for every word in every language (that is a lot of <code><strong>Ctrl+C</strong></code> and  <code><strong>Ctrl+V</strong></code>) you create a simple google sheet that looks like <a href="https://docs.google.com/spreadsheets/d/1-eIna3LE16ViSWIp91YMheAZ3nXVN1hnGsYkR_dLxjY/edit">this</a> and forward it to whoever is in charge of providing translations. After you get filled excel you use the command that bundle provided:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>php app/console generate:static:translations /path/to/excel/file languages</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more info about the bundle and more detailed instructions check <a href="https://github.com/kunicmarko20/static-translations#installation">here</a>.</p>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Static Translations Bundle]]></category><category><![CDATA[Symfony Translations]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Mon, 08 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Don't forget to Reduce the number of Queries!]]></title><description><![CDATA[<div class="paragraph">
 <p>This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading <a href="https://speakerdeck.com/afilina/speed-up-your-database-300-times">Speed Up Your Database 300 Times</a> and at slide number 6 there it was <code><strong><em>“Use JOIN to get all related data in one go.”</em></strong></code> the one thing I forgot that I shouldn&#8217;t, <code><strong>Use JOIN</strong></code>. I read about that long time ago on <a href="https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries">KnpUniversity</a> (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out).</p>
 </div>
 <div class="paragraph">
