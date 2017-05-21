@@ -38,6 +38,6 @@ function hook_views_query_alter(ViewExecutable $view, QueryPluginBase $query)
     }
 }
 ----
-NOTE: This hook has to be in MODULE.views_execution.inc file.
+NOTE: This hook has to be in MODULE.views_execution.inc file, also *node__field_content_type.field_content_type_value* was the name of my field that I needed for conditional so be sure to change it to yours.
 
 That would be it, I hope they fix this soon.
