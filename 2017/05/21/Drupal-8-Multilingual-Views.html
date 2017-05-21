@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Drupal 8 Multilingual Views</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+    <!-- <meta name="twitter:site" content="">
+
+<meta name="twitter:creator" content="">
+
+<meta name="google-site-verification" content="">
+
+<meta property="fb:admins" content="">
+ -->
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link href="//fonts.googleapis.com/" rel="dns-prefetch">
+    <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
+
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1495369430556"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1495369430556"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1495369430556"/>
+
+
+
+
+    <script type="text/javascript">
+      var ga_ua = 'UA-XXXXX-X';
+      
+      var disqus_shortname = 'example';
+      
+      var enable_pjax = true;
+
+      // Pace Options
+      // ==============
+      window.paceOptions = {
+        catchupTime: 100,
+        minTime: 100,
+        elements: false,
+        restartOnRequestAfter: 500,
+        startOnPageLoad: false
+      }
+
+      // Ghostium Globals
+      // ==============
+      window.GHOSTIUM = {};
+      GHOSTIUM.haveGA = typeof ga_ua !== 'undefined' && ga_ua !== 'UA-XXXXX-X';
+      GHOSTIUM.haveDisqus = typeof disqus_shortname !== 'undefined' && disqus_shortname !== 'example';
+      GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
+    </script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1495369430556"></script>
+
+    <link rel="canonical" href="https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Marko Kunic" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Drupal 8 Multilingual Views" />
+    <meta property="og:description" content="Views are part of the core in Drupal 8 but as expected there will always be some bugs. I will explain workaround for this issue until they finally make fix part of Drupal 8. For short answer you can check my question and answer here and thanks to a user" />
+    <meta property="og:url" content="https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html" />
+    <meta property="article:published_time" content="2017-05-21T00:00:00.000Z" />
+    <meta property="article:tag" content="Drupal" />
+    <meta property="article:tag" content="Drupal8" />
+    <meta property="article:tag" content="Views" />
+    <meta property="article:tag" content="Multilingual" />
+    <meta property="article:tag" content="Multilingual Views" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Drupal 8 Multilingual Views" />
+    <meta name="twitter:description" content="Views are part of the core in Drupal 8 but as expected there will always be some bugs. I will explain workaround for this issue until they finally make fix part of Drupal 8. For short answer you can check my question and answer here and thanks to a user" />
+    <meta name="twitter:url" content="https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Marko Kunic",
+    "author": {
+        "@type": "Person",
+        "name": "Marko Kunic",
+        "image": "https://avatars0.githubusercontent.com/u/13528674?v=3",
+        "url": "https://kunicmarko20.github.io/author/kunicmarko20/",
+        "sameAs": "https://github.com/kunicmarko20"
+    },
+    "headline": "Drupal 8 Multilingual Views",
+    "url": "https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html",
+    "datePublished": "2017-05-21T00:00:00.000Z",
+    "keywords": "Drupal, Drupal8, Views, Multilingual, Multilingual Views",
+    "description": "Views are part of the core in Drupal 8 but as expected there will always be some bugs. I will explain workaround for this issue until they finally make fix part of Drupal 8. For short answer you can check my question and answer here and thanks to a user"
+}
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Marko Kunic" href="https://kunicmarko20.github.io/rss/" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+  </head>
+  <body class="post-template tag-Drupal tag-Drupal8 tag-Views tag-Multilingual tag-Multilingual-Views">
+
+    <button data-action="open-drawer" id="drawer-button" class="drawer-button"><i class="fa fa-bars"></i></button>
+    <nav tabindex="-1" class="drawer">
+      <div class="drawer-container">
+        <!--.drawer-search(role="search")-->
+        <ul role="navigation" class="drawer-list">
+          
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" data-pjax>
+              <i class="fa fa-home"></i>Home
+            </a>
+          </li>
+          <!-- <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" title="Marko Kunic" data-pjax>
+              <i class="fa fa-list-alt"></i>All posts
+            </a>
+          </li> -->
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io/rss/">
+              <i class="fa fa-rss"></i>Subscribe to Feed
+            </a>
+          </li>
+          <li class="drawer-list-divider"></li>
+          <li class="drawer-list-item drawer-list-title">
+            Follow me
+          </li>
+          
+          
+          <li class="drawer-list-item">
+            <a href="https://github.com/kunicmarko20" title="Github" target="_blank">
+              <i class="fa fa-github"></i>Github
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="http://rs.linkedin.com/in/kunicmarko20" title="LinkedIn" target="_blank">
+              <i class="fa fa-linkedin"></i>LinkedIn
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="mailto:kunicmarko20@gmail.com" title="Email" target="_blank">
+              <i class="fa fa-envelope-o"></i>Email
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="drawer-overlay"></div>
+    <main id="container" role="main" class="container">
+      <div class="surface">
+        <div class="surface-container">
+          <div data-pjax-container class="content">
+            
+<section class="wrapper wrapper-post">
+  <div class="wrapper-container">
+    <article itemscope itemtype="http://schema.org/BlogPosting" role="article" class="post post tag-Drupal tag-Drupal8 tag-Views tag-Multilingual tag-Multilingual-Views">
+        <section class="post-container">
+          <header class="post-header">
+            <ul class="post-meta-list">
+              <li class="post-meta-item">
+                <time datetime="2017-05-21" itemprop="datePublished">
+                  14 hours ago
+                </time>
+              </li>
+                <li class="post-meta-item">
+                  <span class="tags"><i class="fa fa-tags"></i>
+                      <span>
+                      <a href="https://kunicmarko20.github.io/tag/Drupal/">Drupal</a>, <a href="https://kunicmarko20.github.io/tag/Drupal8/">Drupal8</a>, <a href="https://kunicmarko20.github.io/tag/Views/">Views</a>, <a href="https://kunicmarko20.github.io/tag/Multilingual/">Multilingual</a>, <a href="https://kunicmarko20.github.io/tag/Multilingual-Views/">Multilingual Views</a></span>
+                  </span>
+                </li>
+              <li class="post-meta-item">
+                <a href="#disqus_thread" data-disqus-identifier="">Comments</a>
+              </li>
+            </ul>
+            <h1 itemprop="name headline" class="post-title"><a href="https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html" itemprop="url" data-pjax title="Drupal 8 Multilingual Views">Drupal 8 Multilingual Views</a></h1>
+            <!--h2 itemprop="about" class="post-subtitle"></h2-->
+          </header>
+          <aside class="post-side">
+            <div class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img src="https://avatars0.githubusercontent.com/u/13528674?v&#x3D;3" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <a href="https://github.com/kunicmarko20" class="post-author-name">
+                  Marko Kunic
+                </a>
+                <p class="post-author-bio"></p>
+              </div>
+            </div>
+          </aside>
+          <div itemprop="articleBody" class="post-body">
+            <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Views are part of the core in Drupal 8 but as expected there will always be some bugs. I will explain workaround for this <a href="https://www.drupal.org/node/2451657">issue</a> until they finally make fix part of Drupal 8. For short answer you can check my question and answer <a href="https://drupal.stackexchange.com/questions/236541/multilingual-views-hide-if-no-translation">here</a> and thanks to a user that pointed to issue I found a solution.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_problem">The Problem</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I had to implement blog as part of Drupal website, this was easy with views. I created a view that listed all articles (Content Type) and added <strong>Content: Translation language</strong> filter that I set to <strong>Interface text language selected for page</strong> also I had some additional filter that wasn’t translatable and that was making a problem. My view was showing only posts that were created on currently selected language. Since I had some posts on German that had a translation to English, they still were not showing in English and vice versa. By default, views are making a condition on <strong>langcode</strong> for every join, but my field wasn’t translatable so there was a problem if you condition by language. So what now? We need that filter, it decides on something major but it is same for all translation. Should I make it translatable and force the editor to choose same option for every translation? That would work, but why make the editor do that and also allow a possibility of additional mistakes.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_workaround">The Workaround</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Remove the conditional from view and use <a href="https://api.drupal.org/api/drupal/core%21modules%21views%21views.api.php/function/hook_views_query_alter/8.2.x">hook_views_query_alter</a> to add your relationship and conditional.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">MODULE.views_execution.inc</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use Drupal\views\ViewExecutable;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+
+function hook_views_query_alter(ViewExecutable $view, QueryPluginBase $query)
+{
+    if ($view-&gt;id() == 'your_view_id') {
+        $definition = [
+            'table' =&gt; 'node__field_content_type',
+            'field' =&gt; 'entity_id',
+            'left_table' =&gt; 'node_field_data',
+            'left_field' =&gt; 'nid',
+        ];
+        $join = Drupal::service('plugin.manager.views.join')-&gt;createInstance('standard', $definition);
+        $query-&gt;addRelationship('node__field_content_type', $join, 'node__field_content_type');
+
+        // now add your untranslated field condition here:
+        $query-&gt;addWhere('1', 'node__field_content_type.field_content_type_value', 1, '=');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This hook has to be in MODULE.views_execution.inc file.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>That would be it, I hope they fix this soon.</p>
+</div>
+</div>
+</div>
+          </div>
+          <footer class="post-footer">
+            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img itemprop="image" src="https://avatars0.githubusercontent.com/u/13528674?v&#x3D;3" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <h4 class="post-footer-heading">Written By</h4>
+                <a href="https://github.com/kunicmarko20" itemprop="url" class="post-author-name">
+                  <span itemprop="name">Marko Kunic</span>
+                </a>
+                <p itemprop="description" class="post-author-bio"></p>
+                  <p class="post-author-location">Serbia</p>
+                  <p class="post-author-website">
+                    <a href="https://github.com/kunicmarko20" rel="nofollow">https://github.com/kunicmarko20</a>
+                  </p>
+                <p class="post-info">
+                  <b class="post-info-title">Published on</b>
+                  <time class="post-date">May 21, 2017</time>
+                </p>
+              </div>
+            </div>
+            <div class="post-social">
+              <h4 class="post-footer-heading">Spread the word</h4>
+              <a href="#" data-action="share-twitter"><i class="fa fa-fw fa-lg fa-twitter"></i></a>
+              <a href="#" data-action="share-facebook"><i class="fa fa-fw fa-lg fa-facebook"></i></a>
+              <a href="#" data-action="share-gplus"><i class="fa fa-fw fa-lg fa-google-plus"></i></a>
+            </div>
+          </footer>
+        </section>
+      <section itemprop="comment" class="post-comments">
+        <div id="disqus_thread"></div>
+      </section>
+    </article>
+
+    <footer role="contentinfo" class="footer">
+      <p><small>Copyright &copy; <span itemprop="copyrightHolder">Marko Kunic</span>. 2017. All Rights Reserved.</small></p>
+      <p><small><a href="http://ghostium.oswaldoacauan.com/" target="_blank">Ghostium Theme</a> by <a href="http://twitter.com/oswaldoacauan" target="_blank">@oswaldoacauan</a></small></p>
+      <p><small>Adapted by <a href="https://twitter.com/mgreau">Maxime Gréau</a></small></p>
+      <p><small>Published with <a href="http://hubpress.io">HubPress</a></small></p>
+    </footer>
+  </div>
+</section>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+       
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1495369430556"></script>
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-62123240-3', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+  </body>
+</html>
