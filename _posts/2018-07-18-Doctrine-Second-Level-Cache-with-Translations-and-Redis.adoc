@@ -1,0 +1,85 @@
+= Doctrine Second Level Cache with Translations and Redis
+:published_at: 2018-07-18
+:hp-tags: Symfony, Doctrine, Cache, Second Level Cache, Doctrine Extensions, Redis, SncRedis, Translations
+
+Second level cache was introduced with http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html[Doctrine ORM 2.5.0 Release], it is still marked as experimental but it speeds up performance and people use it in production. Lost a lot of time on finding on how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.
+
+I will be running this on my Vagrant box using https://galaxy.ansible.com/geerlingguy/redis/[geerlingguy.redis] role for ansible.
+
+== Installation
+
+First we need doctrine/orm 2.5 or higher and sncRedis bundle with predis library.
+
+```
+composer require doctrine/doctrine-bundle doctrine/orm snc/redis-bundle predis/predis
+```
+
+== Configuration
+Redis configuration:
+[[app-listing]]
+[source,php]
+.config.yml
+----
+#app/config/config.yml
+snc_redis:
+    clients:
+        default:
+            type: predis
+            alias: default
+            dsn: 'redis://localhost'
+            logging: '%kernel.debug%'
+        doctrine:
+            type: predis
+            alias: doctrine
+            dsn: 'redis://localhost'
+            logging: '%kernel.debug%'
+
+    doctrine:
+        metadata_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dmc:'
+        result_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'drc:'
+        query_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dqc:'
+        second_level_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dslc:'
+----
+Add Redis service:
+[[app-listing]]
+[source,php]
+.services.yml
+----
+#app/config/services.yml
+snc_second_level_cache:
+    class: '%snc_redis.doctrine_cache_predis.class%'
+    arguments: [ '@snc_redis.doctrine' ]
+----
+
+Enable Second Level Cache in Doctrine:
+[[app-listing]]
+[source,php]
+.config.yml
+----
+#app/config/config.yml
+doctrine:
+    orm:
+        entity_managers:
+            default:
+		/...
+                # enable caching
+                second_level_cache:
+                    region_cache_driver:
+                        type: service
+                        id: snc_second_level_cache
+                    enabled: true
+                    region_lifetime: 86400
+----
+
