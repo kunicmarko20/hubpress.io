@@ -2,7 +2,12 @@
 :published_at: 2018-07-18
 :hp-tags: Symfony, Doctrine, Cache, Second Level Cache, Doctrine Extensions, Redis, SncRedis, Translations
 
-Second level cache was introduced with http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html[Doctrine ORM 2.5.0 Release], it is still marked as experimental but it speeds up performance and people use it in production. Lost a lot of time on finding on how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.
+Second level cache was introduced with http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html[Doctrine ORM 2.5.0 Release], it is still marked as experimental but it speeds up performance and people use it in production. I had lost a lot of time on finding on how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.
+
+'''
+*TL;DR*: Code for this can be found https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3[here]. 
+
+'''
 
 I will be running this on my Vagrant box using https://galaxy.ansible.com/geerlingguy/redis/[geerlingguy.redis] role for ansible.
 
@@ -17,7 +22,7 @@ composer require doctrine/doctrine-bundle doctrine/orm snc/redis-bundle predis/p
 == Configuration
 Redis configuration:
 [[app-listing]]
-[source,php]
+[source,yml]
 .config.yml
 ----
 #app/config/config.yml
@@ -54,7 +59,7 @@ snc_redis:
 ----
 Add Redis service:
 [[app-listing]]
-[source,php]
+[source,yml]
 .services.yml
 ----
 #app/config/services.yml
@@ -65,7 +70,7 @@ snc_second_level_cache:
 
 Enable Second Level Cache in Doctrine:
 [[app-listing]]
-[source,php]
+[source,yml]
 .config.yml
 ----
 #app/config/config.yml
@@ -83,3 +88,155 @@ doctrine:
                     region_lifetime: 86400
 ----
 
+== Cache Entities
+In your entities you just have to add Cache annotation with usage https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-article-php-L9[under defining your ORM Entity and Table] also you have to add that annotation to https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-article-php-L22[every association that you want to cache] and https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-category-php-L11[that associated entity also has to have Cache annotation].
+
+There are different types of usages and they are explained http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/second-level-cache.html#caching-mode[here].
+
+[[app-listing]]
+[source,php]
+.Article.php
+----
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class Article 
+{
+ 
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+  
+    /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+}
+----
+
+[[app-listing]]
+[source,php]
+.Category.php
+----
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class Category
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+    /**
+     * @ORM\Column(type="string", nullable=false)
+     */
+    private $name;
+}
+----
+
+== Cache Entities with Translations
+One more thing I needed is this to work with translations so I tested it with 2 bundles that I use for translation, https://github.com/stof/StofDoctrineExtensionsBundle[DoctrineExtensions] and https://github.com/KnpLabs/DoctrineBehaviors[DoctrineBehaviors].
+
+I won't show you how to configure this bundles, only how to enable second level cache with translatable feature. I couldn't get doctrine extensions to work with regions so examples are without regions.
+
+== Doctrine Extensions
+This was simple because we already map *`$translations`* field in our entity, we only need to map association and translation entity like we did with Category in previous example.
+
+[[app-listing]]
+[source,php]
+.ExtensionsArticle.php
+----
+<?php
+
+namespace AppBundle\Entity;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @Gedmo\TranslationEntity(class="ExtensionsArticleTranslation")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class ExtensionsArticle implements TranslatableInterface
+{
+    use PersonalTranslatableTrait;
+    /**
+     * @var string
+     * @ORM\Column(type="string")
+     * @Gedmo\Translatable
+     */
+    protected $name;
+  
+     /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+  
+      /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(
+     *     targetEntity="ExtensionsArticleTranslation",
+     *     mappedBy="object",
+     *     cascade={"persist", "remove"}
+     * )
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $translations;
+}
+----
+
+[[app-listing]]
+[source,php]
+.ExtensionsArticleTranslation.php
+----
+<?php
+
+namespace AppBundle\Entity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="article_translations",
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="lookup_unique_article_idx", columns={
+ *         "locale", "object_id", "field"
+ *     })}
+ * )
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class ExtensionsArticleTranslation extends AbstractPersonalTranslation
+{
+    /**
+     * @ORM\ManyToOne(targetEntity="ExtensionsArticle", inversedBy="translations")
+     * @ORM\JoinColumn(name="object_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    protected $object;
+}
+----
+
+=== Doctrine Behaviors
+This bundle was different, because we include trait in our class we do not have  *`$translations`* field also if you open trait you will see there is no metadata for that field, it is added later in EventListener but that doesn't stop us to add that field with metadata in our class manualy.
