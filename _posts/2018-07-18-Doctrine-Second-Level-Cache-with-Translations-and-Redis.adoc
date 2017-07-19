@@ -9,11 +9,11 @@ Second level cache was introduced with http://www.doctrine-project.org/2015/04/0
 
 '''
 
-I will be running this on my Vagrant box using https://galaxy.ansible.com/geerlingguy/redis/[geerlingguy.redis] role for ansible.
+I will be running this on my Vagrant box using https://galaxy.ansible.com/geerlingguy/redis/[geerlingguy.redis] role for Ansible.
 
 == Installation
 
-First we need doctrine/orm 2.5 or higher and sncRedis bundle with predis library.
+First, we need doctrine/orm 2.5 or higher and sncRedis bundle with predis library.
 
 ```
 composer require doctrine/doctrine-bundle doctrine/orm snc/redis-bundle predis/predis
@@ -238,5 +238,74 @@ class ExtensionsArticleTranslation extends AbstractPersonalTranslation
 }
 ----
 
-=== Doctrine Behaviors
-This bundle was different, because we include trait in our class we do not have  *`$translations`* field also if you open trait you will see there is no metadata for that field, it is added later in EventListener but that doesn't stop us to add that field with metadata in our class manualy.
+== Doctrine Behaviors
+This bundle was different, because we include trait in our class we do not have  *`$translations`* field, also if you open trait you will see there is no metadata for that field, it is added later in EventListener but that doesn't stop us to add that field with metadata in our class manually.
+
+[[app-listing]]
+[source,php]
+.BehaviorsArticle.php
+----
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class BehaviorsArticle implements TranslatableInterface
+{
+    use ORMBehaviors\Translatable\Translatable;
+    /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+  
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="BehaviorsArticleTranslation",
+     *     orphanRemoval=true,
+     *     mappedBy="translatable",
+     *     indexBy="locale",
+     *     cascade={"persist", "merge", "remove"}
+     *)
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $translations;
+}
+----
+
+[[app-listing]]
+[source,php]
+.BehaviorsArticleTranslation.php
+----
+<?
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+
+/**
+ *
+ * @ORM\Table()
+ * @ORM\Entity
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class BehaviorsArticleTranslation
+{
+    use ORMBehaviors\Translatable\Translation;
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+}
+----
