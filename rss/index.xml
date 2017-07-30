@@ -1,4 +1,376 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 30 Jul 2017 18:52:48 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Drupal 8 Multilingual Views]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 30 Jul 2017 18:54:13 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Doctrine Second Level Cache with Translations and Redis]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Second level cache was introduced with <a href="http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html">Doctrine ORM 2.5.0 Release</a>, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3">here</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>I will be running this on my Vagrant box using <a href="https://galaxy.ansible.com/geerlingguy/redis/">geerlingguy.redis</a> role for Ansible.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_installation">Installation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First, we need doctrine/orm 2.5 or higher and sncRedis bundle with predis library.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>composer require doctrine/doctrine-bundle doctrine/orm snc/redis-bundle predis/predis</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration">Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Redis configuration:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">config.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/config.yml
+snc_redis:
+    clients:
+        default:
+            type: predis
+            alias: default
+            dsn: 'redis://localhost'
+            logging: '%kernel.debug%'
+        doctrine:
+            type: predis
+            alias: doctrine
+            dsn: 'redis://localhost'
+            logging: '%kernel.debug%'
+
+    doctrine:
+        metadata_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dmc:'
+        result_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'drc:'
+        query_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dqc:'
+        second_level_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dslc:'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Add Redis service:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/services.yml
+snc_second_level_cache:
+    class: '%snc_redis.doctrine_cache_predis.class%'
+    arguments: [ '@snc_redis.doctrine' ]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Enable Second Level Cache in Doctrine:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">config.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/config.yml
+doctrine:
+    orm:
+        entity_managers:
+            default:
+		/...
+                # enable caching
+                second_level_cache:
+                    region_cache_driver:
+                        type: service
+                        id: snc_second_level_cache
+                    enabled: true
+                    region_lifetime: 86400</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cache_entities">Cache Entities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In your entities you just have to add Cache annotation with usage <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-article-php-L9">under defining your ORM Entity and Table</a> also you have to add that annotation to <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-article-php-L22">every association that you want to cache</a> and <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-category-php-L11">that associated entity also has to have Cache annotation</a>.</p>
+</div>
+<div class="paragraph">
+<p>There are different types of usages and they are explained <a href="http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/second-level-cache.html#caching-mode">here</a>.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">Article.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class Article
+{
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+}</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">Category.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class Category
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+    /**
+     * @ORM\Column(type="string", nullable=false)
+     */
+    private $name;
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cache_entities_with_translations">Cache Entities with Translations</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>One more thing I needed was this to work with translations, so I tested it with 2 bundles that I use for translation, <a href="https://github.com/stof/StofDoctrineExtensionsBundle">DoctrineExtensions</a> and <a href="https://github.com/KnpLabs/DoctrineBehaviors">DoctrineBehaviors</a>.</p>
+</div>
+<div class="paragraph">
+<p>I won&#8217;t show you how to configure this bundles, only how to enable second level cache with translatable feature. I couldn&#8217;t get doctrine extensions to work with regions so examples are without regions.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_doctrine_extensions">Doctrine Extensions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This was simple because we already map <code><strong>$translations</strong></code> field in our entity, we only need to map association and translation entity like we did with Category in previous example.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">ExtensionsArticle.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @Gedmo\TranslationEntity(class="ExtensionsArticleTranslation")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class ExtensionsArticle implements TranslatableInterface
+{
+    use PersonalTranslatableTrait;
+    /**
+     * @var string
+     * @ORM\Column(type="string")
+     * @Gedmo\Translatable
+     */
+    protected $name;
+
+     /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+
+      /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(
+     *     targetEntity="ExtensionsArticleTranslation",
+     *     mappedBy="object",
+     *     cascade={"persist", "remove"}
+     * )
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $translations;
+}</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">ExtensionsArticleTranslation.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="article_translations",
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="lookup_unique_article_idx", columns={
+ *         "locale", "object_id", "field"
+ *     })}
+ * )
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class ExtensionsArticleTranslation extends AbstractPersonalTranslation
+{
+    /**
+     * @ORM\ManyToOne(targetEntity="ExtensionsArticle", inversedBy="translations")
+     * @ORM\JoinColumn(name="object_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    protected $object;
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_doctrine_behaviors">Doctrine Behaviors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This bundle was different, because we include trait in our class we do not have <code><strong>$translations</strong></code> field, also if you open trait you will see there is no metadata for that field, it is added later in EventListener but that doesn&#8217;t stop us from adding that field with metadata in our class manually.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">BehaviorsArticle.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class BehaviorsArticle implements TranslatableInterface
+{
+    use ORMBehaviors\Translatable\Translatable;
+    /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="BehaviorsArticleTranslation",
+     *     orphanRemoval=true,
+     *     mappedBy="translatable",
+     *     indexBy="locale",
+     *     cascade={"persist", "merge", "remove"}
+     *)
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $translations;
+}</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">BehaviorsArticleTranslation.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+
+/**
+ *
+ * @ORM\Table()
+ * @ORM\Entity
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class BehaviorsArticleTranslation
+{
+    use ORMBehaviors\Translatable\Translation;
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That is it, you have now enabled Second Level Cache and now you can leave the rest to symfony and doctrine, you can check your profiler for hits and if you edit your entities do not forget to flush redis with <code><strong>app/console redis:flushdb</strong></code> command, because your metadata for entities is now cached and <code><strong>app/console cache:clear</strong></code> isn&#8217;t enough anymore.</p>
+</div>
+<div class="paragraph">
+<p>To work with regions the only difference you would have is instead of <code><strong>@ORM\Cache(usage="NONSTRICT_READ_WRITE")</strong></code> you would write <code><strong>@ORM\Cache(usage="NONSTRICT_READ_WRITE", region="your_region_name")</strong></code> and you would have to add custom region in your configuration, list of all doctrine configuration can be found <a href="https://symfony.com/doc/current/bundles/DoctrineBundle/configuration.html">here</a>, at line 264 you see configuration for Second Level Cache and custom regions start at line 279.</p>
+</div>
+<div class="paragraph">
+<p>When writing custom query for your repository you have to add <code><strong>&#8594;setCacheable(true)</strong></code>:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">public function getAllArticles()
+{
+    $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('a')
+            -&gt;from('AppBundle:Article', 'a');
+
+    return $qb-&gt;getQuery()
+            -&gt;setCacheable(true)
+            //-&gt;setCacheRegion('your_region_name')
+            -&gt;getResult();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Also if working with regions you add <code><strong>&#8594;setCacheRegion('your_region_name')</strong></code>.</p>
+</div>
+<div class="paragraph">
+<p>Hope this helps someone and if you have any questions feel free to contact me.</p>
+</div>
+</div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/07/20/Doctrine-Second-Level-Cache-with-Translations-and-Redis.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/07/20/Doctrine-Second-Level-Cache-with-Translations-and-Redis.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Doctrine]]></category><category><![CDATA[Cache]]></category><category><![CDATA[Second Level Cache]]></category><category><![CDATA[Doctrine Extensions]]></category><category><![CDATA[Redis]]></category><category><![CDATA[SncRedis]]></category><category><![CDATA[Translations]]></category><category><![CDATA[Doctrine Behaviors]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Thu, 20 Jul 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Drupal 8 Multilingual Views]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Views are part of the core in Drupal 8 but as expected there will always be some bugs. I will explain workaround for this <a href="https://www.drupal.org/node/2451657">issue</a> until they finally make fix part of Drupal 8. For short answer you can check my question and answer <a href="https://drupal.stackexchange.com/questions/236541/multilingual-views-hide-if-no-translation">here</a> and thanks to a user that pointed to issue I found a solution.</p>
