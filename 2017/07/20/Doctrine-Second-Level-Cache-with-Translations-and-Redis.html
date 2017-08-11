@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Doctrine Second Level Cache with Translations and Redis</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+    <!-- <meta name="twitter:site" content="">
+
+<meta name="twitter:creator" content="">
+
+<meta name="google-site-verification" content="">
+
+<meta property="fb:admins" content="">
+ -->
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link href="//fonts.googleapis.com/" rel="dns-prefetch">
+    <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
+
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1502433619653"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1502433619653"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1502433619653"/>
+
+
+
+
+    <script type="text/javascript">
+      var ga_ua = 'UA-XXXXX-X';
+      
+      var disqus_shortname = 'example';
+      
+      var enable_pjax = true;
+
+      // Pace Options
+      // ==============
+      window.paceOptions = {
+        catchupTime: 100,
+        minTime: 100,
+        elements: false,
+        restartOnRequestAfter: 500,
+        startOnPageLoad: false
+      }
+
+      // Ghostium Globals
+      // ==============
+      window.GHOSTIUM = {};
+      GHOSTIUM.haveGA = typeof ga_ua !== 'undefined' && ga_ua !== 'UA-XXXXX-X';
+      GHOSTIUM.haveDisqus = typeof disqus_shortname !== 'undefined' && disqus_shortname !== 'example';
+      GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
+    </script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1502433619653"></script>
+
+    <link rel="canonical" href="https://kunicmarko20.github.io/2017/07/20/Doctrine-Second-Level-Cache-with-Translations-and-Redis.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Marko Kunic" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Doctrine Second Level Cache with Translations and Redis" />
+    <meta property="og:description" content="Second level cache was introduced with Doctrine ORM 2.5.0 Release, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp" />
+    <meta property="og:url" content="https://kunicmarko20.github.io/2017/07/20/Doctrine-Second-Level-Cache-with-Translations-and-Redis.html" />
+    <meta property="article:published_time" content="2017-07-20T00:00:00.000Z" />
+    <meta property="article:tag" content="Symfony" />
+    <meta property="article:tag" content="Doctrine" />
+    <meta property="article:tag" content="Cache" />
+    <meta property="article:tag" content="Second Level Cache" />
+    <meta property="article:tag" content="Doctrine Extensions" />
+    <meta property="article:tag" content="Redis" />
+    <meta property="article:tag" content="SncRedis" />
+    <meta property="article:tag" content="Translations" />
+    <meta property="article:tag" content="Doctrine Behaviors" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Doctrine Second Level Cache with Translations and Redis" />
+    <meta name="twitter:description" content="Second level cache was introduced with Doctrine ORM 2.5.0 Release, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp" />
+    <meta name="twitter:url" content="https://kunicmarko20.github.io/2017/07/20/Doctrine-Second-Level-Cache-with-Translations-and-Redis.html" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Marko Kunic",
+    "author": {
+        "@type": "Person",
+        "name": "Marko Kunic",
+        "image": "https://avatars3.githubusercontent.com/u/13528674?v=4",
+        "url": "https://kunicmarko20.github.io/author/kunicmarko20/",
+        "sameAs": "https://github.com/kunicmarko20"
+    },
+    "headline": "Doctrine Second Level Cache with Translations and Redis",
+    "url": "https://kunicmarko20.github.io/2017/07/20/Doctrine-Second-Level-Cache-with-Translations-and-Redis.html",
+    "datePublished": "2017-07-20T00:00:00.000Z",
+    "keywords": "Symfony, Doctrine, Cache, Second Level Cache, Doctrine Extensions, Redis, SncRedis, Translations, Doctrine Behaviors",
+    "description": "Second level cache was introduced with Doctrine ORM 2.5.0 Release, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp"
+}
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Marko Kunic" href="https://kunicmarko20.github.io/rss/" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+  </head>
+  <body class="post-template tag-Symfony tag-Doctrine tag-Cache tag-Second-Level-Cache tag-Doctrine-Extensions tag-Redis tag-Snc-Redis tag-Translations tag-Doctrine-Behaviors">
+
+    <button data-action="open-drawer" id="drawer-button" class="drawer-button"><i class="fa fa-bars"></i></button>
+    <nav tabindex="-1" class="drawer">
+      <div class="drawer-container">
+        <!--.drawer-search(role="search")-->
+        <ul role="navigation" class="drawer-list">
+          
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" data-pjax>
+              <i class="fa fa-home"></i>Home
+            </a>
+          </li>
+          <!-- <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" title="Marko Kunic" data-pjax>
+              <i class="fa fa-list-alt"></i>All posts
+            </a>
+          </li> -->
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io/rss/">
+              <i class="fa fa-rss"></i>Subscribe to Feed
+            </a>
+          </li>
+          <li class="drawer-list-divider"></li>
+          <li class="drawer-list-item drawer-list-title">
+            Follow me
+          </li>
+          
+          
+          <li class="drawer-list-item">
+            <a href="https://github.com/kunicmarko20" title="Github" target="_blank">
+              <i class="fa fa-github"></i>Github
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="http://rs.linkedin.com/in/kunicmarko20" title="LinkedIn" target="_blank">
+              <i class="fa fa-linkedin"></i>LinkedIn
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="mailto:kunicmarko20@gmail.com" title="Email" target="_blank">
+              <i class="fa fa-envelope-o"></i>Email
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="drawer-overlay"></div>
+    <main id="container" role="main" class="container">
+      <div class="surface">
+        <div class="surface-container">
+          <div data-pjax-container class="content">
+            
+<section class="wrapper wrapper-post">
+  <div class="wrapper-container">
+    <article itemscope itemtype="http://schema.org/BlogPosting" role="article" class="post post tag-Symfony tag-Doctrine tag-Cache tag-Second-Level-Cache tag-Doctrine-Extensions tag-Redis tag-Snc-Redis tag-Translations tag-Doctrine-Behaviors">
+        <section class="post-container">
+          <header class="post-header">
+            <ul class="post-meta-list">
+              <li class="post-meta-item">
+                <time datetime="2017-07-20" itemprop="datePublished">
+                  22 days ago
+                </time>
+              </li>
+                <li class="post-meta-item">
+                  <span class="tags"><i class="fa fa-tags"></i>
+                      <span>
+                      <a href="https://kunicmarko20.github.io/tag/Symfony/">Symfony</a>, <a href="https://kunicmarko20.github.io/tag/Doctrine/">Doctrine</a>, <a href="https://kunicmarko20.github.io/tag/Cache/">Cache</a>, <a href="https://kunicmarko20.github.io/tag/Second-Level-Cache/">Second Level Cache</a>, <a href="https://kunicmarko20.github.io/tag/Doctrine-Extensions/">Doctrine Extensions</a>, <a href="https://kunicmarko20.github.io/tag/Redis/">Redis</a>, <a href="https://kunicmarko20.github.io/tag/Snc-Redis/">SncRedis</a>, <a href="https://kunicmarko20.github.io/tag/Translations/">Translations</a>, <a href="https://kunicmarko20.github.io/tag/Doctrine-Behaviors/">Doctrine Behaviors</a></span>
+                  </span>
+                </li>
+              <li class="post-meta-item">
+                <a href="#disqus_thread" data-disqus-identifier="">Comments</a>
+              </li>
+            </ul>
+            <h1 itemprop="name headline" class="post-title"><a href="/" itemprop="url" data-pjax title="Doctrine Second Level Cache with Translations and Redis">Doctrine Second Level Cache with Translations and Redis</a></h1>
+            <!--h2 itemprop="about" class="post-subtitle"></h2-->
+          </header>
+          <aside class="post-side">
+            <div class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img src="https://avatars3.githubusercontent.com/u/13528674?v&#x3D;4" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <a href="https://github.com/kunicmarko20" class="post-author-name">
+                  Marko Kunic
+                </a>
+                <p class="post-author-bio"></p>
+              </div>
+            </div>
+          </aside>
+          <div itemprop="articleBody" class="post-body">
+            <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Second level cache was introduced with <a href="http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html">Doctrine ORM 2.5.0 Release</a>, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3">here</a>.</p>
+</div>
+<hr>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Redis will cache your metadata and if you edit your Entity you will have to flush redis cache: app/console redis:flushdb
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>I will be running this on my Vagrant box using <a href="https://galaxy.ansible.com/geerlingguy/redis/">geerlingguy.redis</a> role for Ansible.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_installation">Installation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First, we need doctrine/orm 2.5 or higher and sncRedis bundle with predis library.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>composer require doctrine/doctrine-bundle doctrine/orm snc/redis-bundle predis/predis</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_configuration">Configuration</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Redis configuration:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">config.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/config.yml
+snc_redis:
+    clients:
+        default:
+            type: predis
+            alias: default
+            dsn: 'redis://localhost'
+            logging: '%kernel.debug%'
+        doctrine:
+            type: predis
+            alias: doctrine
+            dsn: 'redis://localhost'
+            logging: '%kernel.debug%'
+
+    doctrine:
+        metadata_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dmc:'
+        result_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'drc:'
+        query_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dqc:'
+        second_level_cache:
+            client: doctrine
+            entity_manager: default
+            namespace: 'dslc:'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Add Redis service:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/services.yml
+snc_second_level_cache:
+    class: '%snc_redis.doctrine_cache_predis.class%'
+    arguments: [ '@snc_redis.doctrine' ]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Enable Second Level Cache in Doctrine:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">config.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/config.yml
+doctrine:
+    orm:
+        entity_managers:
+            default:
+		/...
+                # enable caching
+                second_level_cache:
+                    region_cache_driver:
+                        type: service
+                        id: snc_second_level_cache
+                    enabled: true
+                    region_lifetime: 86400</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cache_entities">Cache Entities</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In your entities you just have to add Cache annotation with usage <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-article-php-L9">under defining your ORM Entity and Table</a> also you have to add that annotation to <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-article-php-L22">every association that you want to cache</a> and <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3#file-category-php-L11">that associated entity also has to have Cache annotation</a>.</p>
+</div>
+<div class="paragraph">
+<p>There are different types of usages and they are explained <a href="http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/second-level-cache.html#caching-mode">here</a>.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">Article.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class Article
+{
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+}</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">Category.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class Category
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+    /**
+     * @ORM\Column(type="string", nullable=false)
+     */
+    private $name;
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cache_entities_with_translations">Cache Entities with Translations</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>One more thing I needed was this to work with translations, so I tested it with 2 bundles that I use for translation, <a href="https://github.com/stof/StofDoctrineExtensionsBundle">DoctrineExtensions</a> and <a href="https://github.com/KnpLabs/DoctrineBehaviors">DoctrineBehaviors</a>.</p>
+</div>
+<div class="paragraph">
+<p>I won&#8217;t show you how to configure this bundles, only how to enable second level cache with translatable feature. I couldn&#8217;t get doctrine extensions to work with regions so examples are without regions.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_doctrine_extensions">Doctrine Extensions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This was simple because we already map <code><strong>$translations</strong></code> field in our entity, we only need to map association and translation entity like we did with Category in previous example.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">ExtensionsArticle.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @Gedmo\TranslationEntity(class="ExtensionsArticleTranslation")
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class ExtensionsArticle implements TranslatableInterface
+{
+    use PersonalTranslatableTrait;
+    /**
+     * @var string
+     * @ORM\Column(type="string")
+     * @Gedmo\Translatable
+     */
+    protected $name;
+
+     /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+
+      /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(
+     *     targetEntity="ExtensionsArticleTranslation",
+     *     mappedBy="object",
+     *     cascade={"persist", "remove"}
+     * )
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $translations;
+}</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">ExtensionsArticleTranslation.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="article_translations",
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="lookup_unique_article_idx", columns={
+ *         "locale", "object_id", "field"
+ *     })}
+ * )
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class ExtensionsArticleTranslation extends AbstractPersonalTranslation
+{
+    /**
+     * @ORM\ManyToOne(targetEntity="ExtensionsArticle", inversedBy="translations")
+     * @ORM\JoinColumn(name="object_id", referencedColumnName="id", onDelete="CASCADE")
+     */
+    protected $object;
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_doctrine_behaviors">Doctrine Behaviors</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This bundle was different, because we include trait in our class we do not have <code><strong>$translations</strong></code> field, also if you open trait you will see there is no metadata for that field, it is added later in EventListener but that doesn&#8217;t stop us from adding that field with metadata in our class manually.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">BehaviorsArticle.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+
+/**
+ * @package AppBundle\Entity
+ * @ORM\Entity()
+ * @ORM\Table()
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class BehaviorsArticle implements TranslatableInterface
+{
+    use ORMBehaviors\Translatable\Translatable;
+    /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="article")
+     * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $category;
+
+    /**
+     * @ORM\OneToMany(
+     *     targetEntity="BehaviorsArticleTranslation",
+     *     orphanRemoval=true,
+     *     mappedBy="translatable",
+     *     indexBy="locale",
+     *     cascade={"persist", "merge", "remove"}
+     *)
+     * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+     */
+    protected $translations;
+}</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">BehaviorsArticleTranslation.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+
+/**
+ *
+ * @ORM\Table()
+ * @ORM\Entity
+ * @ORM\Cache(usage="NONSTRICT_READ_WRITE")
+ */
+class BehaviorsArticleTranslation
+{
+    use ORMBehaviors\Translatable\Translation;
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $name;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That is it, you have now enabled Second Level Cache and now you can leave the rest to symfony and doctrine, you can check your profiler for hits and if you edit your entities do not forget to flush redis with <code><strong>app/console redis:flushdb</strong></code> command, because your metadata for entities is now cached and <code><strong>app/console cache:clear</strong></code> isn&#8217;t enough anymore.</p>
+</div>
+<div class="paragraph">
+<p>To work with regions the only difference you would have is instead of <code><strong>@ORM\Cache(usage="NONSTRICT_READ_WRITE")</strong></code> you would write <code><strong>@ORM\Cache(usage="NONSTRICT_READ_WRITE", region="your_region_name")</strong></code> and you would have to add custom region in your configuration, list of all doctrine configuration can be found <a href="https://symfony.com/doc/current/bundles/DoctrineBundle/configuration.html">here</a>, at line 264 you see configuration for Second Level Cache and custom regions start at line 279.</p>
+</div>
+<div class="paragraph">
+<p>When writing custom query for your repository you have to add <code><strong>&#8594;setCacheable(true)</strong></code>:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">public function getAllArticles()
+{
+    $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('a')
+            -&gt;from('AppBundle:Article', 'a');
+
+    return $qb-&gt;getQuery()
+            -&gt;setCacheable(true)
+            //-&gt;setCacheRegion('your_region_name')
+            -&gt;getResult();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Also if working with regions you add <code><strong>&#8594;setCacheRegion('your_region_name')</strong></code>.</p>
+</div>
+<div class="paragraph">
+<p>Hope this helps someone and if you have any questions feel free to contact me.</p>
+</div>
+</div>
+</div>
+          </div>
+          <footer class="post-footer">
+            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img itemprop="image" src="https://avatars3.githubusercontent.com/u/13528674?v&#x3D;4" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <h4 class="post-footer-heading">Written By</h4>
+                <a href="https://github.com/kunicmarko20" itemprop="url" class="post-author-name">
+                  <span itemprop="name">Marko Kunic</span>
+                </a>
+                <p itemprop="description" class="post-author-bio"></p>
+                  <p class="post-author-location">Serbia</p>
+                  <p class="post-author-website">
+                    <a href="https://github.com/kunicmarko20" rel="nofollow">https://github.com/kunicmarko20</a>
+                  </p>
+                <p class="post-info">
+                  <b class="post-info-title">Published on</b>
+                  <time class="post-date">July 20, 2017</time>
+                </p>
+              </div>
+            </div>
+            <div class="post-social">
+              <h4 class="post-footer-heading">Spread the word</h4>
+              <a href="#" data-action="share-twitter"><i class="fa fa-fw fa-lg fa-twitter"></i></a>
+              <a href="#" data-action="share-facebook"><i class="fa fa-fw fa-lg fa-facebook"></i></a>
+              <a href="#" data-action="share-gplus"><i class="fa fa-fw fa-lg fa-google-plus"></i></a>
+            </div>
+          </footer>
+        </section>
+      <section itemprop="comment" class="post-comments">
+        <div id="disqus_thread"></div>
+      </section>
+    </article>
+
+    <footer role="contentinfo" class="footer">
+      <p><small>Copyright &copy; <span itemprop="copyrightHolder">Marko Kunic</span>. 2017. All Rights Reserved.</small></p>
+      <p><small><a href="http://ghostium.oswaldoacauan.com/" target="_blank">Ghostium Theme</a> by <a href="http://twitter.com/oswaldoacauan" target="_blank">@oswaldoacauan</a></small></p>
+      <p><small>Adapted by <a href="https://twitter.com/mgreau">Maxime Gréau</a></small></p>
+      <p><small>Published with <a href="http://hubpress.io">HubPress</a></small></p>
+    </footer>
+  </div>
+</section>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+       
+    <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1502433619653"></script>
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-62123240-3', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+  </body>
+</html>

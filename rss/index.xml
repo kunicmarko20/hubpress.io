@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 30 Jul 2017 18:54:13 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Doctrine Second Level Cache with Translations and Redis]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 11 Aug 2017 06:40:19 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Doctrine Second Level Cache with Translations and Redis]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Second level cache was introduced with <a href="http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html">Doctrine ORM 2.5.0 Release</a>, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.</p>
@@ -8,6 +8,18 @@
 <p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/74118570887c4bf067160536e49737d3">here</a>.</p>
 </div>
 <hr>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Redis will cache your metadata and if you edit your Entity you will have to flush redis cache: app/console redis:flushdb
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>I will be running this on my Vagrant box using <a href="https://galaxy.ansible.com/geerlingguy/redis/">geerlingguy.redis</a> role for Ansible.</p>
 </div>
@@ -433,6 +445,69 @@ This hook has to be in MODULE.views_execution.inc file, also <strong>node__field
 <p>That would be it, I hope they fix this soon.</p>
 </div>
 </div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html</guid><category><![CDATA[Drupal]]></category><category><![CDATA[Drupal8]]></category><category><![CDATA[Views]]></category><category><![CDATA[Multilingual]]></category><category><![CDATA[Multilingual Views]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sun, 21 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Drupal 8 Multilingual Views]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Views are part of the core in Drupal 8 but as expected there will always be some bugs. I will explain workaround for this <a href="https://www.drupal.org/node/2451657">issue</a> until they finally make fix part of Drupal 8. For short answer you can check my question and answer <a href="https://drupal.stackexchange.com/questions/236541/multilingual-views-hide-if-no-translation">here</a> and thanks to a user that pointed to issue I found a solution.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_problem">The Problem</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I had to implement blog as part of Drupal website, this was easy with views. I created a view that listed all articles (Content Type) and added <strong>Content: Translation language</strong> filter that I set to <strong>Interface text language selected for page</strong> also I had some additional filter that wasn’t translatable and that was making a problem. My view was showing only posts that were created on currently selected language. Since I had some posts on German that had a translation to English, they still were not showing in English and vice versa. By default, views are making a condition on <strong>langcode</strong> for every join, but my field wasn’t translatable so there was a problem if you condition by language. So what now? We need that filter, it decides on something major but it is same for all translation. Should I make it translatable and force the editor to choose same option for every translation? That would work, but why make the editor do that and also allow a possibility of additional mistakes.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_workaround">The Workaround</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Remove the conditional from view and use <a href="https://api.drupal.org/api/drupal/core%21modules%21views%21views.api.php/function/hook_views_query_alter/8.2.x">hook_views_query_alter</a> to add your relationship and conditional.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">MODULE.views_execution.inc</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use Drupal\views\ViewExecutable;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+
+function hook_views_query_alter(ViewExecutable $view, QueryPluginBase $query)
+{
+    if ($view-&gt;id() == 'your_view_id') {
+        $definition = [
+            'table' =&gt; 'node__field_content_type',
+            'field' =&gt; 'entity_id',
+            'left_table' =&gt; 'node_field_data',
+            'left_field' =&gt; 'nid',
+        ];
+        $join = Drupal::service('plugin.manager.views.join')-&gt;createInstance('standard', $definition);
+        $query-&gt;addRelationship('node__field_content_type', $join, 'node__field_content_type');
+
+        // now add your untranslated field condition here:
+        $query-&gt;addWhere('1', 'node__field_content_type.field_content_type_value', 1, '=');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This hook has to be in MODULE.views_execution.inc file, also <strong>node__field_content_type.field_content_type_value</strong> was the name of my field that I needed for conditional so be sure to change it to yours.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>That would be it, I hope they fix this soon.</p>
+</div>
+</div>
 </div>]]></description><link>https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/21/Drupal-8-Multilingual-Views.html</guid><category><![CDATA[Drupal]]></category><category><![CDATA[Drupal8]]></category><category><![CDATA[Views]]></category><category><![CDATA[Multilingual]]></category><category><![CDATA[Multilingual Views]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sun, 21 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Static Translations Bundle]]></title><description><![CDATA[<div class="paragraph">
 <p>This is a small presentation of a <a href="https://github.com/kunicmarko20/static-translations">Static Translations Bundle</a> I wrote for Symfony that made my hand hurt less.</p>
 </div>
@@ -470,7 +545,143 @@ This hook has to be in MODULE.views_execution.inc file, also <strong>node__field
 </div>
 <div class="paragraph">
 <p>For more info about the bundle and more detailed instructions check <a href="https://github.com/kunicmarko20/static-translations#installation">here</a>.</p>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Static Translations Bundle]]></category><category><![CDATA[Symfony Translations]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Mon, 08 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Static Translations Bundle]]></title><description><![CDATA[<div class="paragraph">
+<p>This is a small presentation of a <a href="https://github.com/kunicmarko20/static-translations">Static Translations Bundle</a> I wrote for Symfony that made my hand hurt less.</p>
+</div>
+<div class="paragraph">
+<p>If you are not using something like <a href="https://github.com/lexik/LexikTranslationBundle">LexikTranslationBundle</a> or <a href="https://github.com/ibrows/IbrowsSonataTranslationBundle">IbrowsSonataTranslationBundle</a> (LexikTranslationBundle integrated to Sonata Admin) then this is a bundle for you.</p>
+</div>
+<div class="paragraph">
+<p>If you ever created a Multilingual website with Symfony, you know that for every language you can create an xml file for hard coded strings. In every language file, there is a same <code><strong>trans-unit</strong></code> element for every string that needs translation where the <code><strong>target</strong></code> is the only different thing based on language.</p>
+</div>
+<div class="listingblock">
+<div class="title">en</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;trans-unit id="post"&gt;
+    &lt;source&gt;Post&lt;/source&gt;
+    &lt;target&gt;Post&lt;/target&gt;
+&lt;/trans-unit&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">es</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;trans-unit id="post"&gt;
+    &lt;source&gt;Post&lt;/source&gt;
+    &lt;target&gt;Enviar&lt;/target&gt;
+&lt;/trans-unit&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Instead of copying every translation for every word in every language (that is a lot of <code><strong>Ctrl+C</strong></code> and  <code><strong>Ctrl+V</strong></code>) you create a simple google sheet that looks like <a href="https://docs.google.com/spreadsheets/d/1-eIna3LE16ViSWIp91YMheAZ3nXVN1hnGsYkR_dLxjY/edit">this</a> and forward it to whoever is in charge of providing translations. After you get filled excel you use the command that bundle provided:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>php app/console generate:static:translations /path/to/excel/file languages</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For more info about the bundle and more detailed instructions check <a href="https://github.com/kunicmarko20/static-translations#installation">here</a>.</p>
 </div>]]></description><link>https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Static Translations Bundle]]></category><category><![CDATA[Symfony Translations]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Mon, 08 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Don't forget to Reduce the number of Queries!]]></title><description><![CDATA[<div class="paragraph">
+<p>This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading <a href="https://speakerdeck.com/afilina/speed-up-your-database-300-times">Speed Up Your Database 300 Times</a> and at slide number 6 there it was <code><strong><em>“Use JOIN to get all related data in one go.”</em></strong></code> the one thing I forgot that I shouldn&#8217;t, <code><strong>Use JOIN</strong></code>. I read about that long time ago on <a href="https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries">KnpUniversity</a> (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out).</p>
+</div>
+<div class="paragraph">
+<p>The first thing I did was to check my current application I was working on. It wasn&#8217;t a big application, it was a form with a lot of fields, Entity translations and images but then I saw it in web profiler, that form was making around 60 queries. After reading everything from web profiler I saw that for every store I listed with <code><strong>&#8594;findAll()</strong></code> doctrine was making additional query when I asked for city where store was, so I created method in my Entity repository:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StoreRepository.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class StoreRepository extends EntityRepository
+{
+    public function getAllStores()
+    {
+        $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('store')
+            -&gt;from('AppBundle:Store', 'store')
+                -&gt;leftjoin('store.city', 'city')
+                -&gt;addSelect('city');
+        return $qb-&gt;getQuery()-&gt;getResult();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I replaced every <code><strong>&#8594;findAll()</strong></code> and <code><strong>&#8594;findBy()</strong></code> with custom repository methods but that wasn&#8217;t enough, there was still some additional queries. <a href="http://symfony.com/doc/current/reference/forms/types/entity.html">EntityType Field</a> was the next problem, I wasn&#8217;t aware that if you write something like this inside of your FormType:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use AppBundle\Entity\Category;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            -&gt;add('category', EntityType::class, [
+                'class' =&gt; Category::class
+                ]);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>you get the same problem as before, for everything that was a relationship inside of Category Entity doctrine will create a query for every info you request, in my case it was translations. Code for categories became:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+use AppBundle\Entity\Category;
+use AppBundle\Repository\CategoryRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+// ...
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+        $builder
+            -&gt;add('category', EntityType::class, [
+                'class' =&gt; Category::class,
+                'query_builder' =&gt; function (CategoryRepository $er) {
+                    return $er-&gt;getAllCategories();
+                }
+            ]);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The only difference from Store Repository example from before is that EntityType requested QueryBuilder object instead of results, so that looked like:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CategoryRepository.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Repository;
+
+use Doctrine\ORM\EntityRepository;
+
+class CategoryRepository extends EntityRepository
+{
+    public function getAllCategories()
+    {
+        $qb = $this-&gt;getEntityManager()-&gt;createQueryBuilder()
+            -&gt;select('category')
+            -&gt;from('AppBundle:Category', 'category')
+                -&gt;leftjoin('category.translations', 'categoryTranslations')
+                -&gt;addSelect('categoryTranslations');
+        return $qb; //returns just QueryBuilder
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I did this for every EntityType field and at the end, my form was making just 6 queries, 10 times less than when I started. I hope this helps you and you do not forget to do this, I know that after this I won&#8217;t forget.</p>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Doctrine]]></category><category><![CDATA[Doctrine Queries]]></category><category><![CDATA[Database]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sun, 07 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Don't forget to Reduce the number of Queries!]]></title><description><![CDATA[<div class="paragraph">
 <p>This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading <a href="https://speakerdeck.com/afilina/speed-up-your-database-300-times">Speed Up Your Database 300 Times</a> and at slide number 6 there it was <code><strong><em>“Use JOIN to get all related data in one go.”</em></strong></code> the one thing I forgot that I shouldn&#8217;t, <code><strong>Use JOIN</strong></code>. I read about that long time ago on <a href="https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries">KnpUniversity</a> (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out).</p>
 </div>
 <div class="paragraph">
@@ -637,7 +848,401 @@ $item-&gt;setImage($media);
 <p>Hope this helps someone and if you are stuck somewhere with this, feel free to <a href="mailto:kunicmarko20@gmail.com">email me</a> for help.</p>
 </div>
 </div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Sonata Media]]></category><category><![CDATA[Sonata Media Migrate]]></category><category><![CDATA[Sonata Admin]]></category><category><![CDATA[Migrate Images]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sat, 06 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Migrate Images to Sonata Media]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://sonata-project.org/bundles/media/3-x/doc/index.html">Sonata Media</a>  another great bundle that we get from <a href="https://sonata-project.org/bundles">Sonata-Project</a> family. Sonata Media is a bundle for media management and like any other bundles from Sonata-Project, documentation sucks. Maybe you are transferring some old project to Symfony or you decided that Sonata Media is something you need and you have some images attached, in my case, it was a lot of images. I will explain how I dealt with this problem and what was the best way I found to solve it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upload_image_programmatically">Upload Image Programmatically</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This will be a simple example of how to save image as Media Object.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">$item; //Entity where you added Sonata Media field
+$mediaManager = $this-&gt;get("sonata.media.manager.media");
+$media = new \Application\Sonata\MediaBundle\Entity\Media();
+
+$media-&gt;setBinaryContent("/path/to/your/old/image");
+$media-&gt;setContext('default'); //contex you are using
+$media-&gt;setProviderName('sonata.media.provider.image');
+
+$mediaManager-&gt;save($media);
+$item-&gt;setImage($media);
+//call entity manager and save object</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So now you created Media Object and saved to your new Entity.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_migrating_images_and_galleries">Migrating Images and Galleries</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here is the code I used to migrate everything and I thought it would be cleaner if you just look at <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412">gist</a>.</p>
+</div>
+<div class="paragraph">
+<p>I created a Symfony Command that I registered as service and passed sonata managers and upload directory, also to avoid command timeout I:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Disabled SQLLoger on  <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L53">line 53</a></p>
+</li>
+<li>
+<p>Used garbage collection on <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L65">line 65</a> and <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L87">line 87</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L78">Flushed objects after every 10 iterations</a> and <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L84">detached them</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images. This script took longer time because of precautions I took but after 5000 images there was no timeout, it was worth it.</p>
+</div>
+<div class="paragraph">
+<p>If you are stuck at <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L102">line 102</a>, maybe you can create Entities from old database tables and then get all galleries or images, maybe you can create <a href="http://symfony.com/doc/current/doctrine/multiple_entity_managers.html">additional connection</a> and <a href="http://symfony.com/doc/current/doctrine/reverse_engineering.html">import that database as another bundle</a>, where you would call separate entity manager connection for every database and then grab images from old database.</p>
+</div>
+<div class="paragraph">
+<p>I just checked gist and I see the code is not up to <a href="http://www.php-fig.org/psr/">PHP Coding Style Standards</a> also I see a lot of space for refactoring but I am currently out of time to change that and I encourage you to read about PSRs and follow Standards.</p>
+</div>
+<div class="paragraph">
+<p>Hope this helps someone and if you are stuck somewhere with this, feel free to <a href="mailto:kunicmarko20@gmail.com">email me</a> for help.</p>
+</div>
+</div>
 </div>]]></description><link>https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Sonata Media]]></category><category><![CDATA[Sonata Media Migrate]]></category><category><![CDATA[Sonata Admin]]></category><category><![CDATA[Migrate Images]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sat, 06 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Sonata Admin Custom Export Format]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://sonata-project.org/bundles/admin/3-x/doc/index.html">Sonata Admin</a> is Admin Generator for <a href="https://symfony.com/">Symfony</a>, and it is something that I use on almost every project. In this post, I will explain how to add an option for export to Sonata Admin. As you already know Sonata Admin has default exports formats (xls, xml, json, csv) but I needed one more, I needed to export to never version of excel (Excel2007).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You can take parts that you need and create a new export to something else, but this is the best way I found to do this.
+</td>
+</tr>
+</table>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/e0292280344761efbc7ff376f7080fec">here</a>.</p>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_are_we_going_to_do">What are we going to do ?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Following the example of current <a href="https://github.com/sonata-project/exporter/tree/1.x/src/Writer">Sonata Exporter Writers</a> we need to create a custom writer, we need to overwrite <a href="https://github.com/sonata-project/SonataCoreBundle/blob/3.x/Exporter/Exporter.php">Sonata Exporter</a> from <a href="https://github.com/sonata-project/SonataCoreBundle">SonataCoreBundle</a> with our own and we need to edit our AdminClass to accept new type.</p>
+</div>
+<div class="paragraph">
+<p>For this example we will also need <a href="https://github.com/PHPOffice/PHPExcel">PHPOffice/PHPExcel</a> so add it with composer :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>composer require phpoffice/phpexcel</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_xlsxwriter">XlsxWriter</h3>
+<div class="paragraph">
+<p>After looking at other Writers (<a href="https://github.com/sonata-project/exporter/blob/1.x/src/Writer/XlsWriter.php">XlsWriter</a>, <a href="https://github.com/sonata-project/exporter/blob/1.x/src/Writer/CsvWriter.php">CsvWriter</a> &#8230;&#8203;) this is the code I created for our new <code><strong>xlsx</strong></code> export:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">XlsxWriter.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Exporter\Writer;
+
+use Exporter\Writer\TypedWriterInterface;
+use PHPExcel_IOFactory;
+use PHPExcel;
+use PHPExcel_Style_Alignment;
+
+class XlsxWriter implements TypedWriterInterface
+{
+    const LABEL_COLUMN = 1;
+    /** @var  PHPExcel */
+    private $phpExcelObject;
+    /** @var array */
+    private $headerColumns = [];
+    /** @var  string */
+    private $filename;
+    /** @var int */
+    protected $position;
+
+    public function __construct($filename)
+    {
+        $this-&gt;filename = $filename;
+        $this-&gt;position = 2;
+    }
+
+    public function getDefaultMimeType()
+    {
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    }
+
+    public function getFormat()
+    {
+        return 'xlsx';
+    }
+
+    /**
+     * Create PHPExcel object and set defaults
+     */
+    public function open()
+    {
+        $this-&gt;phpExcelObject = new PHPExcel();
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function write(array $data)
+    {
+        $this-&gt;init($data);
+        foreach ($data as $header =&gt; $value) {
+            $this-&gt;setCellValue($this-&gt;getColumn($header), $value);
+        }
+        ++$this-&gt;position;
+    }
+    /**
+     *  Set labels
+     * @param $data
+     *
+     * @return void
+     */
+    protected function init($data)
+    {
+        if ($this-&gt;position &gt; 2) {
+            return;
+        }
+        $i = 0;
+        foreach ($data as $header =&gt; $value) {
+            $column = self::formatColumnName($i);
+            $this-&gt;setHeader($column, $header);
+            $i++;
+        }
+        $this-&gt;setBoldLabels();
+    }
+    /**
+     * Save Excel file
+     */
+    public function close()
+    {
+        $writer = PHPExcel_IOFactory::createWriter($this-&gt;phpExcelObject, 'Excel2007');
+        $writer-&gt;save($this-&gt;filename);
+    }
+    /**
+     * Returns letter for number based on Excel columns
+     * @param int $number
+     * @return string
+     */
+    public static function formatColumnName($number)
+    {
+        for ($char = ""; $number &gt;= 0; $number = intval($number / 26) - 1) {
+            $char = chr($number%26 + 0x41) . $char;
+        }
+        return $char;
+    }
+    /**
+     * @return \PHPExcel_Worksheet
+     */
+    private function getActiveSheet()
+    {
+        return $this-&gt;phpExcelObject-&gt;getActiveSheet();
+    }
+    /**
+     * Makes header bold
+     */
+    private function setBoldLabels()
+    {
+        $this-&gt;getActiveSheet()-&gt;getStyle(
+            sprintf(
+                "%s1:%s1",
+                reset($this-&gt;headerColumns),
+                end($this-&gt;headerColumns)
+            )
+        )-&gt;getFont()-&gt;setBold(true);
+    }
+    /**
+     * Sets cell value
+     * @param string $column
+     * @param string $value
+     */
+    private function setCellValue($column, $value)
+    {
+        $this-&gt;getActiveSheet()-&gt;setCellValue($column, $value);
+    }
+    /**
+     * Set column label and make column auto size
+     * @param string $column
+     * @param string $value
+     */
+    private function setHeader($column, $value)
+    {
+        $this-&gt;setCellValue($column.self::LABEL_COLUMN, $value);
+        $this-&gt;getActiveSheet()-&gt;getColumnDimension($column)-&gt;setAutoSize(true);
+        $this-&gt;headerColumns[$value] = $column;
+    }
+    /**
+     * Get column name
+     * @param string $name
+     * @return string
+     */
+    private function getColumn($name)
+    {
+        return $this-&gt;headerColumns[$name].$this-&gt;position;
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_exporter">Exporter</h3>
+<div class="paragraph">
+<p>We will copy code from <a href="https://github.com/sonata-project/SonataCoreBundle/blob/3.x/Exporter/Exporter.php">Sonata Exporter</a> and only add our new option to switch statement:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">case 'xlsx':
+    $writer = new XlsxWriter('php://output');
+    $contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    break;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So our Exporter now looks like:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">Exporter.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Exporter;
+
+use Sonata\CoreBundle\Exporter\Exporter as BaseExporter;
+use Exporter\Source\SourceIteratorInterface;
+use AppBundle\Exporter\Writer\XlsxWriter;
+use Exporter\Writer\XlsWriter;
+use Exporter\Writer\XmlWriter;
+use Exporter\Writer\JsonWriter;
+use Exporter\Writer\CsvWriter;
+use Exporter\Handler;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class Exporter extends BaseExporter
+{
+ /**
+     * @throws \RuntimeException
+     *
+     * @param string                  $format
+     * @param string                  $filename
+     * @param SourceIteratorInterface $source
+     *
+     * @return StreamedResponse
+     */
+    public function getResponse($format, $filename, SourceIteratorInterface $source)
+    {
+        switch ($format) {
+            case 'xls':
+                $writer = new XlsWriter('php://output');
+                $contentType = 'application/vnd.ms-excel';
+                break;
+            case 'xml':
+                $writer = new XmlWriter('php://output');
+                $contentType = 'text/xml';
+                break;
+            case 'json':
+                $writer = new JsonWriter('php://output');
+                $contentType = 'application/json';
+                break;
+            case 'csv':
+                $writer = new CsvWriter('php://output', ',', '"', '', true, true);
+                $contentType = 'text/csv';
+                break;
+            case 'xlsx':
+                $writer = new XlsxWriter('php://output');
+                $contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                break;
+            default:
+                throw new \RuntimeException('Invalid format');
+        }
+        $callback = function () use ($source, $writer) {
+            $handler = Handler::create($source, $writer);
+            $handler-&gt;export();
+        };
+        return new StreamedResponse($callback, 200, array(
+            'Content-Type' =&gt; $contentType,
+            'Content-Disposition' =&gt; sprintf('attachment; filename="%s"', $filename),
+        ));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We also have to overwrite service that sonata declared with our class:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">services:
+    sonata.admin.exporter:
+        class: AppBundle\Exporter\Exporter</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_admin_class">Admin Class</h3>
+<div class="paragraph">
+<p>The only thing that is left is to add a new option to our Admin Class and set fields for export:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">YourAdmin.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Admin;
+
+use Sonata\AdminBundle\Admin\AbstractAdmin;
+//...
+
+class YourAdmin extends AbstractAdmin
+{
+    //...
+    public function getExportFormats()
+    {
+        return ['xlsx', 'xls', 'csv', 'json', 'xml'];
+    }
+    //optional, if not set Sonata will take all variables
+    public function getExportFields()
+    {
+        return array(
+            $this-&gt;trans('export.createdAt') =&gt; 'createdAt',
+            $this-&gt;trans('export.id') =&gt; 'id'
+            // add your fields with or without translations
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That is it, run it and try new export option, I hope this helps someone with this problem.</p>
+</div>
+</div>
+</div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/05/Sonata-Admin-Custom-Export-Format.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/05/Sonata-Admin-Custom-Export-Format.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Sonata Admin]]></category><category><![CDATA[Sonata Admin Exporter]]></category><category><![CDATA[Custom Exporter]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Fri, 05 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Sonata Admin Custom Export Format]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://sonata-project.org/bundles/admin/3-x/doc/index.html">Sonata Admin</a> is Admin Generator for <a href="https://symfony.com/">Symfony</a>, and it is something that I use on almost every project. In this post, I will explain how to add an option for export to Sonata Admin. As you already know Sonata Admin has default exports formats (xls, xml, json, csv) but I needed one more, I needed to export to never version of excel (Excel2007).</p>
@@ -1154,6 +1759,199 @@ class CloneController extends ControllerBase
 </div>
 </div>
 </div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/04/Clone-Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/04/Clone-Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html</guid><category><![CDATA[Drupal]]></category><category><![CDATA[Drupal8]]></category><category><![CDATA[Paragraphs]]></category><category><![CDATA[Duplicate Node]]></category><category><![CDATA[Node Clone]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Thu, 04 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Clone/Duplicate Node with Paragraphs field in Drupal 8]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so I had to find some kind of solution. You can check my short answer on <a href="https://drupal.stackexchange.com/a/230035">stackoverflow</a> or continue reading this.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+At the time of this writing, there is still no stable modules for cloning.
+</td>
+</tr>
+</table>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/d1fcb622bda26f9707f6ff96297f2090">here</a>.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>What if we add <a href="https://www.drupal.org/project/paragraphs">Paragraphs module</a>? Great solution for page builder in Drupal, be sure to check it out. I will explain how to create clones of your Nodes with or without Paragraphs.</p>
+</div>
+<div class="paragraph">
+<p>We will create a custom module that will add an option to our content listing for cloning.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_module">Custom Module</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>So we will create a custom module with name '<strong>clone_nodes</strong>' in the modules directory.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.info.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">name: Clone Nodes
+description: 'Creates clone of node.'
+type: module
+core: 8.x
+package: Custom</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.routing.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">clone_nodes:
+    path: '/cnodes/node/{id}/clone'
+    defaults:
+        _controller: '\Drupal\clone_nodes\Controller\CloneController::clone'
+    requirements:
+        _permission: 'access content'</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">clone_nodes.module</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+function clone_nodes_pages_entity_operation(\Drupal\Core\Entity\EntityInterface $entity)
+{
+
+    $operations = [];
+
+    if ($entity instanceof \Drupal\node\Entity\Node) {
+        $operations['clone'] = [
+          'title' =&gt; t('Clone'),
+          'url' =&gt; \Drupal\Core\Url::fromRoute('clone_nodes',['id' =&gt; $entity-&gt;id()]),
+          'weight' =&gt; 150,
+        ];
+    }
+
+    return $operations;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we only need the Controller and that will be different if you are using paragraphs or not.</p>
+</div>
+<div class="sect2">
+<h3 id="_controller_without_paragraphs">Controller without Paragraphs</h3>
+<div class="paragraph">
+<p>After searching for this solution I found that Drupal 8 Entity API has <a href="https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Entity%21Entity.php/function/Entity%3A%3AcreateDuplicate/8.2.x">createDuplicate method</a> so I used that.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CloneController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+namespace Drupal\clone_nodes\Controller;
+
+use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\node\Entity\Node;
+
+class CloneController extends ControllerBase
+{
+
+    public function clone($id)
+    {
+        $node = Node::load($id);
+        if ($node === null) {
+            drupal_set_message(t('Node with id @id does not exist.', ['@id' =&gt; $id]), 'error');
+        } else {
+
+            $nodeDuplicate = $node-&gt;createDuplicate();
+            //edit title or something so you can find cloned
+            $nodeDuplicate-&gt;save();
+
+            drupal_set_message(
+            	t("Node has been created. &lt;a href='/node/@id/edit' target='_blank'&gt;Edit now&lt;/a&gt;", [
+                  '@id' =&gt; $nodeDuplicate-&gt;id(),
+                  '@title' =&gt; $nodeDuplicate-&gt;getTitle()]
+            	 ), 'status');
+        }
+
+        return new RedirectResponse('/admin/content');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you create duplicate of node you can edit title or something so you can distinguish original from cloned, but the only difference that I saw was that cloned Node doesn&#8217;t have alias url becuase that stays bound to original.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_controller_with_paragraphs">Controller with Paragraphs</h3>
+<div class="paragraph">
+<p>The only difference is that you have to duplicate every paragraphs field that is connected to node, so we will just add this part of code :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">foreach ($nodeDuplicate-&gt;field_paragraphs as $field) {
+    $field-&gt;entity = $field-&gt;entity-&gt;createDuplicate();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code><strong>field_paragraphs</strong></code> is machine name I used for my paragraphs field in Content Type, be sure to changed it to match yours.</p>
+</div>
+<div class="paragraph">
+<p>So our Controller now looks like :</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">CloneController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+namespace Drupal\clone_nodes\Controller;
+
+use Drupal\Core\Controller\ControllerBase;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Drupal\node\Entity\Node;
+
+class CloneController extends ControllerBase
+{
+
+    public function clone($id)
+    {
+        $node = Node::load($id);
+        if ($node === null) {
+            drupal_set_message(t('Node with id @id does not exist.', ['@id' =&gt; $id]), 'error');
+        } else {
+
+            $nodeDuplicate = $node-&gt;createDuplicate();
+
+            foreach ($nodeDuplicate-&gt;field_paragraphs as $field) {
+                $field-&gt;entity = $field-&gt;entity-&gt;createDuplicate();
+            }
+
+            //edit title or something so you can find cloned
+            $nodeDuplicate-&gt;save();
+
+            drupal_set_message(
+            	t("Node has been created. &lt;a href='/node/@id/edit' target='_blank'&gt;Edit now&lt;/a&gt;", [
+                  '@id' =&gt; $nodeDuplicate-&gt;id(),
+                  '@title' =&gt; $nodeDuplicate-&gt;getTitle()]
+            	 ), 'status');
+        }
+
+        return new RedirectResponse('/admin/content');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I hope this helps someone with this problem and until some old clone module is ported to Drupal 8 I guess this will have to do it.</p>
+</div>
+</div>
+</div>
 </div>]]></description><link>https://kunicmarko20.github.io/2017/05/04/Clone-Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/04/Clone-Duplicate-Node-with-Paragraphs-field-in-Drupal-8.html</guid><category><![CDATA[Drupal]]></category><category><![CDATA[Drupal8]]></category><category><![CDATA[Paragraphs]]></category><category><![CDATA[Duplicate Node]]></category><category><![CDATA[Node Clone]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Thu, 04 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Intro]]></title><description><![CDATA[<div class="paragraph">
+<p>As you already know, my name is Marko Kunic. Currently, I am a PHP developer working with Symfony, Wordpress and Drupal, so, for now, you can expect my blog posts to be related to that and anything that pops in between. Through time, I encountered the problems where stackoverflow didn&#8217;t have a solution and a lot of google pages after I find some random blog that has. To contribute back my goal is to post solutions to the problems that wasted my time so hopefully, the next person that starts searching finds this blog and does not waste his time.</p>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/03/Intro.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/03/Intro.html</guid><category><![CDATA[About]]></category><category><![CDATA[Intro]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Wed, 03 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Intro]]></title><description><![CDATA[<div class="paragraph">
 <p>As you already know, my name is Marko Kunic. Currently, I am a PHP developer working with Symfony, Wordpress and Drupal, so, for now, you can expect my blog posts to be related to that and anything that pops in between. Through time, I encountered the problems where stackoverflow didn&#8217;t have a solution and a lot of google pages after I find some random blog that has. To contribute back my goal is to post solutions to the problems that wasted my time so hopefully, the next person that starts searching finds this blog and does not waste his time.</p>
 </div>]]></description><link>https://kunicmarko20.github.io/2017/05/03/Intro.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/03/Intro.html</guid><category><![CDATA[About]]></category><category><![CDATA[Intro]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Wed, 03 May 2017 00:00:00 GMT</pubDate></item></channel></rss>
