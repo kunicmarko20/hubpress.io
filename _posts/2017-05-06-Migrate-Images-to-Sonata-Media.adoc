@@ -1,5 +1,4 @@
 = Migrate Images to Sonata Media
-Marko Kunic <kunicmarko20@gmail.com>
 :published_at: 2017-05-06
 :hp-tags: Symfony, Sonata Media, Sonata Media Migrate, Sonata Admin, Migrate Images
 
