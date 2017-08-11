@@ -1,0 +1,32 @@
+= Static Translations Bundle
+:published_at: 2017-05-08
+:hp-tags: Symfony, Static Translations Bundle, Symfony Translations
+
+This is a small presentation of a https://github.com/kunicmarko20/static-translations[Static Translations Bundle] I wrote for Symfony that made my hand hurt less.
+
+If you are not using something like https://github.com/lexik/LexikTranslationBundle[LexikTranslationBundle] or https://github.com/ibrows/IbrowsSonataTranslationBundle[IbrowsSonataTranslationBundle] (LexikTranslationBundle integrated to Sonata Admin) then this is a bundle for you.
+
+If you ever created a Multilingual website with Symfony, you know that for every language you can create an xml file for hard coded strings. In every language file, there is a same `*trans-unit*` element for every string that needs translation where the `*target*` is the only different thing based on language.
+
+[source,xml]
+.en
+----
+<trans-unit id="post">
+    <source>Post</source>
+    <target>Post</target>
+</trans-unit>
+----
+[source,xml]
+.es
+----
+<trans-unit id="post">
+    <source>Post</source>
+    <target>Enviar</target>
+</trans-unit>
+----
+Instead of copying every translation for every word in every language (that is a lot of `*Ctrl+C*` and  `*Ctrl+V*`) you create a simple google sheet that looks like https://docs.google.com/spreadsheets/d/1-eIna3LE16ViSWIp91YMheAZ3nXVN1hnGsYkR_dLxjY/edit[this] and forward it to whoever is in charge of providing translations. After you get filled excel you use the command that bundle provided:
+----
+php app/console generate:static:translations /path/to/excel/file languages
+----
+
+For more info about the bundle and more detailed instructions check https://github.com/kunicmarko20/static-translations#installation[here].
