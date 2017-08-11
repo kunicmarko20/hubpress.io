@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 11 Aug 2017 10:40:22 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Doctrine Second Level Cache with Translations and Redis]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 11 Aug 2017 10:43:10 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Doctrine Second Level Cache with Translations and Redis]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Second level cache was introduced with <a href="http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html">Doctrine ORM 2.5.0 Release</a>, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.</p>
@@ -1065,7 +1065,401 @@ class CategoryRepository extends EntityRepository
 </div>
 <div class="paragraph">
 <p>I did this for every EntityType field and at the end, my form was making just 6 queries, 10 times less than when I started. I hope this helps you and you do not forget to do this, I know that after this I won&#8217;t forget.</p>
-</div>]]></description><link>https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Doctrine]]></category><category><![CDATA[Doctrine Queries]]></category><category><![CDATA[Database]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sun, 07 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Clone/Duplicate Node with Paragraphs field in Drupal 8]]></title><description><![CDATA[<div id="preamble">
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/07/Dont-forget-to-Reduce-the-number-of-Queries.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Doctrine]]></category><category><![CDATA[Doctrine Queries]]></category><category><![CDATA[Database]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sun, 07 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Migrate Images to Sonata Media]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://sonata-project.org/bundles/media/3-x/doc/index.html">Sonata Media</a>  another great bundle that we get from <a href="https://sonata-project.org/bundles">Sonata-Project</a> family. Sonata Media is a bundle for media management and like any other bundles from Sonata-Project, documentation sucks. Maybe you are transferring some old project to Symfony or you decided that Sonata Media is something you need and you have some images attached, in my case, it was a lot of images. I will explain how I dealt with this problem and what was the best way I found to solve it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_upload_image_programmatically">Upload Image Programmatically</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This will be a simple example of how to save image as Media Object.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">$item; //Entity where you added Sonata Media field
+$mediaManager = $this-&gt;get("sonata.media.manager.media");
+$media = new \Application\Sonata\MediaBundle\Entity\Media();
+
+$media-&gt;setBinaryContent("/path/to/your/old/image");
+$media-&gt;setContext('default'); //contex you are using
+$media-&gt;setProviderName('sonata.media.provider.image');
+
+$mediaManager-&gt;save($media);
+$item-&gt;setImage($media);
+//call entity manager and save object</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So now you created Media Object and saved to your new Entity.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_migrating_images_and_galleries">Migrating Images and Galleries</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here is the code I used to migrate everything and I thought it would be cleaner if you just look at <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412">gist</a>.</p>
+</div>
+<div class="paragraph">
+<p>I created a Symfony Command that I registered as service and passed sonata managers and upload directory, also to avoid command timeout I:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Disabled SQLLoger on  <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L53">line 53</a></p>
+</li>
+<li>
+<p>Used garbage collection on <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L65">line 65</a> and <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L87">line 87</a></p>
+</li>
+<li>
+<p><a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L78">Flushed objects after every 10 iterations</a> and <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L84">detached them</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can increase flush to more than 10 iterations but in my example, I created Sonata Media Galleries with 10+ images. This script took longer time because of precautions I took but after 5000 images there was no timeout, it was worth it.</p>
+</div>
+<div class="paragraph">
+<p>If you are stuck at <a href="https://gist.github.com/kunicmarko20/5be4b0ed2a63f5179b9df1e8b5c94412#file-migrateimagescommand-php-L102">line 102</a>, maybe you can create Entities from old database tables and then get all galleries or images, maybe you can create <a href="http://symfony.com/doc/current/doctrine/multiple_entity_managers.html">additional connection</a> and <a href="http://symfony.com/doc/current/doctrine/reverse_engineering.html">import that database as another bundle</a>, where you would call separate entity manager connection for every database and then grab images from old database.</p>
+</div>
+<div class="paragraph">
+<p>I just checked gist and I see the code is not up to <a href="http://www.php-fig.org/psr/">PHP Coding Style Standards</a> also I see a lot of space for refactoring but I am currently out of time to change that and I encourage you to read about PSRs and follow Standards.</p>
+</div>
+<div class="paragraph">
+<p>Hope this helps someone and if you are stuck somewhere with this, feel free to <a href="mailto:kunicmarko20@gmail.com">email me</a> for help.</p>
+</div>
+</div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/06/Migrate-Images-to-Sonata-Media.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Sonata Media]]></category><category><![CDATA[Sonata Media Migrate]]></category><category><![CDATA[Sonata Admin]]></category><category><![CDATA[Migrate Images]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sat, 06 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Sonata Admin Custom Export Format]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://sonata-project.org/bundles/admin/3-x/doc/index.html">Sonata Admin</a> is Admin Generator for <a href="https://symfony.com/">Symfony</a>, and it is something that I use on almost every project. In this post, I will explain how to add an option for export to Sonata Admin. As you already know Sonata Admin has default exports formats (xls, xml, json, csv) but I needed one more, I needed to export to never version of excel (Excel2007).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+You can take parts that you need and create a new export to something else, but this is the best way I found to do this.
+</td>
+</tr>
+</table>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/e0292280344761efbc7ff376f7080fec">here</a>.</p>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_are_we_going_to_do">What are we going to do ?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Following the example of current <a href="https://github.com/sonata-project/exporter/tree/1.x/src/Writer">Sonata Exporter Writers</a> we need to create a custom writer, we need to overwrite <a href="https://github.com/sonata-project/SonataCoreBundle/blob/3.x/Exporter/Exporter.php">Sonata Exporter</a> from <a href="https://github.com/sonata-project/SonataCoreBundle">SonataCoreBundle</a> with our own and we need to edit our AdminClass to accept new type.</p>
+</div>
+<div class="paragraph">
+<p>For this example we will also need <a href="https://github.com/PHPOffice/PHPExcel">PHPOffice/PHPExcel</a> so add it with composer :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>composer require phpoffice/phpexcel</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_xlsxwriter">XlsxWriter</h3>
+<div class="paragraph">
+<p>After looking at other Writers (<a href="https://github.com/sonata-project/exporter/blob/1.x/src/Writer/XlsWriter.php">XlsWriter</a>, <a href="https://github.com/sonata-project/exporter/blob/1.x/src/Writer/CsvWriter.php">CsvWriter</a> &#8230;&#8203;) this is the code I created for our new <code><strong>xlsx</strong></code> export:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">XlsxWriter.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Exporter\Writer;
+
+use Exporter\Writer\TypedWriterInterface;
+use PHPExcel_IOFactory;
+use PHPExcel;
+use PHPExcel_Style_Alignment;
+
+class XlsxWriter implements TypedWriterInterface
+{
+    const LABEL_COLUMN = 1;
+    /** @var  PHPExcel */
+    private $phpExcelObject;
+    /** @var array */
+    private $headerColumns = [];
+    /** @var  string */
+    private $filename;
+    /** @var int */
+    protected $position;
+
+    public function __construct($filename)
+    {
+        $this-&gt;filename = $filename;
+        $this-&gt;position = 2;
+    }
+
+    public function getDefaultMimeType()
+    {
+        return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    }
+
+    public function getFormat()
+    {
+        return 'xlsx';
+    }
+
+    /**
+     * Create PHPExcel object and set defaults
+     */
+    public function open()
+    {
+        $this-&gt;phpExcelObject = new PHPExcel();
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function write(array $data)
+    {
+        $this-&gt;init($data);
+        foreach ($data as $header =&gt; $value) {
+            $this-&gt;setCellValue($this-&gt;getColumn($header), $value);
+        }
+        ++$this-&gt;position;
+    }
+    /**
+     *  Set labels
+     * @param $data
+     *
+     * @return void
+     */
+    protected function init($data)
+    {
+        if ($this-&gt;position &gt; 2) {
+            return;
+        }
+        $i = 0;
+        foreach ($data as $header =&gt; $value) {
+            $column = self::formatColumnName($i);
+            $this-&gt;setHeader($column, $header);
+            $i++;
+        }
+        $this-&gt;setBoldLabels();
+    }
+    /**
+     * Save Excel file
+     */
+    public function close()
+    {
+        $writer = PHPExcel_IOFactory::createWriter($this-&gt;phpExcelObject, 'Excel2007');
+        $writer-&gt;save($this-&gt;filename);
+    }
+    /**
+     * Returns letter for number based on Excel columns
+     * @param int $number
+     * @return string
+     */
+    public static function formatColumnName($number)
+    {
+        for ($char = ""; $number &gt;= 0; $number = intval($number / 26) - 1) {
+            $char = chr($number%26 + 0x41) . $char;
+        }
+        return $char;
+    }
+    /**
+     * @return \PHPExcel_Worksheet
+     */
+    private function getActiveSheet()
+    {
+        return $this-&gt;phpExcelObject-&gt;getActiveSheet();
+    }
+    /**
+     * Makes header bold
+     */
+    private function setBoldLabels()
+    {
+        $this-&gt;getActiveSheet()-&gt;getStyle(
+            sprintf(
+                "%s1:%s1",
+                reset($this-&gt;headerColumns),
+                end($this-&gt;headerColumns)
+            )
+        )-&gt;getFont()-&gt;setBold(true);
+    }
+    /**
+     * Sets cell value
+     * @param string $column
+     * @param string $value
+     */
+    private function setCellValue($column, $value)
+    {
+        $this-&gt;getActiveSheet()-&gt;setCellValue($column, $value);
+    }
+    /**
+     * Set column label and make column auto size
+     * @param string $column
+     * @param string $value
+     */
+    private function setHeader($column, $value)
+    {
+        $this-&gt;setCellValue($column.self::LABEL_COLUMN, $value);
+        $this-&gt;getActiveSheet()-&gt;getColumnDimension($column)-&gt;setAutoSize(true);
+        $this-&gt;headerColumns[$value] = $column;
+    }
+    /**
+     * Get column name
+     * @param string $name
+     * @return string
+     */
+    private function getColumn($name)
+    {
+        return $this-&gt;headerColumns[$name].$this-&gt;position;
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_exporter">Exporter</h3>
+<div class="paragraph">
+<p>We will copy code from <a href="https://github.com/sonata-project/SonataCoreBundle/blob/3.x/Exporter/Exporter.php">Sonata Exporter</a> and only add our new option to switch statement:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">case 'xlsx':
+    $writer = new XlsxWriter('php://output');
+    $contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    break;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So our Exporter now looks like:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">Exporter.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Exporter;
+
+use Sonata\CoreBundle\Exporter\Exporter as BaseExporter;
+use Exporter\Source\SourceIteratorInterface;
+use AppBundle\Exporter\Writer\XlsxWriter;
+use Exporter\Writer\XlsWriter;
+use Exporter\Writer\XmlWriter;
+use Exporter\Writer\JsonWriter;
+use Exporter\Writer\CsvWriter;
+use Exporter\Handler;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class Exporter extends BaseExporter
+{
+ /**
+     * @throws \RuntimeException
+     *
+     * @param string                  $format
+     * @param string                  $filename
+     * @param SourceIteratorInterface $source
+     *
+     * @return StreamedResponse
+     */
+    public function getResponse($format, $filename, SourceIteratorInterface $source)
+    {
+        switch ($format) {
+            case 'xls':
+                $writer = new XlsWriter('php://output');
+                $contentType = 'application/vnd.ms-excel';
+                break;
+            case 'xml':
+                $writer = new XmlWriter('php://output');
+                $contentType = 'text/xml';
+                break;
+            case 'json':
+                $writer = new JsonWriter('php://output');
+                $contentType = 'application/json';
+                break;
+            case 'csv':
+                $writer = new CsvWriter('php://output', ',', '"', '', true, true);
+                $contentType = 'text/csv';
+                break;
+            case 'xlsx':
+                $writer = new XlsxWriter('php://output');
+                $contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                break;
+            default:
+                throw new \RuntimeException('Invalid format');
+        }
+        $callback = function () use ($source, $writer) {
+            $handler = Handler::create($source, $writer);
+            $handler-&gt;export();
+        };
+        return new StreamedResponse($callback, 200, array(
+            'Content-Type' =&gt; $contentType,
+            'Content-Disposition' =&gt; sprintf('attachment; filename="%s"', $filename),
+        ));
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We also have to overwrite service that sonata declared with our class:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">services:
+    sonata.admin.exporter:
+        class: AppBundle\Exporter\Exporter</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_admin_class">Admin Class</h3>
+<div class="paragraph">
+<p>The only thing that is left is to add a new option to our Admin Class and set fields for export:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">YourAdmin.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace AppBundle\Admin;
+
+use Sonata\AdminBundle\Admin\AbstractAdmin;
+//...
+
+class YourAdmin extends AbstractAdmin
+{
+    //...
+    public function getExportFormats()
+    {
+        return ['xlsx', 'xls', 'csv', 'json', 'xml'];
+    }
+    //optional, if not set Sonata will take all variables
+    public function getExportFields()
+    {
+        return array(
+            $this-&gt;trans('export.createdAt') =&gt; 'createdAt',
+            $this-&gt;trans('export.id') =&gt; 'id'
+            // add your fields with or without translations
+        );
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That is it, run it and try new export option, I hope this helps someone with this problem.</p>
+</div>
+</div>
+</div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/05/Sonata-Admin-Custom-Export-Format.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/05/Sonata-Admin-Custom-Export-Format.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Sonata Admin]]></category><category><![CDATA[Sonata Admin Exporter]]></category><category><![CDATA[Custom Exporter]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Fri, 05 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Clone/Duplicate Node with Paragraphs field in Drupal 8]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Cloning/Duplicating Nodes in Drupal is easy, just get some module that does that for you and you are ready but the problem is when you are using Drupal 8 and there is no stable module or they are still not ported to Drupal 8. I had this problem, so I had to find some kind of solution. You can check my short answer on <a href="https://drupal.stackexchange.com/a/230035">stackoverflow</a> or continue reading this.</p>
