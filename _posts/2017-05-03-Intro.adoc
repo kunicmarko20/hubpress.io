@@ -1,7 +1,7 @@
 = Intro
 :description: About the author of this blog and what will be published.
 :published_at: 2017-05-03
-:hp-tags: About, Intro, kunicmarko20, Marko Kunic
+:hp-tags: About, Intro, kunicmarko20
 
 
 As you already know, my name is Marko Kunic. Currently, I am a PHP developer working with Symfony, Wordpress and Drupal, so, for now, you can expect my blog posts to be related to that and anything that pops in between. Through time, I encountered the problems where stackoverflow didn't have a solution and a lot of google pages after I find some random blog that has. To contribute back my goal is to post solutions to the problems that wasted my time so hopefully, the next person that starts searching finds this blog and does not waste his time.
