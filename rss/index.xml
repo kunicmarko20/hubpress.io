@@ -1,4 +1,297 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 14 Aug 2017 17:12:42 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Doctrine Second Level Cache with Translations and Redis]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 17 Sep 2017 16:55:23 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Sonata Admin Custom Page]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you do a google search for "sonata admin custom page" you will probably find <a href="http://blog.eike.se/2014/03/custom-page-controller-in-sonata-admin.html">this</a>, while this is still a valid solution there is a better one. I needed to create a statistics page that would cover various Entities and I needed it in Sonata Admin. Here I will explain a better way for a custom page and how to use sonata blocks to make a universal block for statistics.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/f500c5ed1e4cee7c6df8cbcc7c7053c0">here</a>.</p>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_page">Custom Page</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can register Sonata Admin class without Entity (I was shocked too as this is not mentioned anywhere).</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/services.yml
+bundle.admin.stats:
+    class: YourBundle\Admin\StatsAdmin
+    arguments: [~, ~, AdminBundle:StatsCRUD]
+    tags:
+        - { name: sonata.admin, manager_type: orm, label: Stats, group: Stats, on_top: true, icon: '&lt;i class="fa fa-bar-chart"&gt;&lt;/i&gt;' }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As you can see here, we registered admin class without Entity with a custom controller.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StatsAdmin.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace YourBundle\Admin;
+
+use Sonata\AdminBundle\Admin\AbstractAdmin;
+use Sonata\AdminBundle\Route\RouteCollection;
+
+class StatsAdmin extends AbstractAdmin
+{
+    protected $baseRoutePattern = 'stats';
+    protected $baseRouteName = 'stats';
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection-&gt;clearExcept(['list']);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You have to define '$baseroutePattern' and '$baseRouteName', and we will clear all other routes but the list.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StatsCRUDController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace YourBundle\Controller;
+
+use Sonata\AdminBundle\Controller\CRUDController;
+
+class StatsCRUDController extends CRUDController
+{
+    public function listAction()
+    {
+        return $this-&gt;render('YourBundle::stats.html.twig');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In a controller, it is up to you but as I said that I am making statistics page I will just render my template here. I will now go to creating custom Sonata Block and after that, I will show you template.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sonata_block">Sonata Block</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here we will create a universal block that will accept any Entity and Repository Method, also CSS class, font awesome icon, and a title.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StatsBlockService.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace YourBundle\Block\Service;
+
+use Doctrine\ORM\EntityManagerInterface;
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\CoreBundle\Validator\ErrorElement;
+use Sonata\BlockBundle\Block\Service\AbstractBlockService;
+use Sonata\BlockBundle\Block\BlockContextInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Bundle\TwigBundle\TwigEngine;
+
+class StatsBlockService extends AbstractBlockService
+{
+
+    private $entityManager;
+
+    public function __construct(string $serviceId, TwigEngine $templating, EntityManagerInterface $entityManager)
+    {
+        $this-&gt;entityManager = $entityManager;
+        parent::__construct($serviceId, $templating);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'Stats Block';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureSettings(OptionsResolver $resolver)
+    {
+        $resolver-&gt;setDefaults(array(
+            'entity' =&gt; 'Add Entity',
+            'repository_method' =&gt; 'findAll',
+            'title' =&gt; 'Insert block Title',
+            'css_class' =&gt; 'bg-blue',
+            'icon' =&gt; 'fa-users',
+            'template' =&gt; 'YourBundle:Block:block_stats.html.twig',
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function buildEditForm(FormMapper $formMapper, BlockInterface $block)
+    {
+        $formMapper-&gt;add('settings', 'sonata_type_immutable_array', array(
+            'keys' =&gt; array(
+                array('entity', 'text', array('required' =&gt; false)),
+                array('repository_method', 'text', array('required' =&gt; false)),
+                array('title', 'text', array('required' =&gt; false)),
+                array('css_class', 'text', array('required' =&gt; false)),
+                array('icon', 'text', array('required' =&gt; false)),
+            ),
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateBlock(ErrorElement $errorElement, BlockInterface $block)
+    {
+        $errorElement
+            -&gt;with('settings[entity]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end()
+            -&gt;with('settings[repository_method]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end()
+            -&gt;with('settings[title]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+                -&gt;assertMaxLength(array('limit' =&gt; 50))
+            -&gt;end()
+            -&gt;with('settings[css_class]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end()
+            -&gt;with('settings[icon]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function execute(BlockContextInterface $blockContext, Response $response = null)
+    {
+        $settings = $blockContext-&gt;getSettings();
+        $entity = $settings['entity'];
+        $method = $settings['repository_method'];
+
+        $rows = $this-&gt;entityManager-&gt;getRepository($entity)-&gt;$method();
+
+        return $this-&gt;templating-&gt;renderResponse($blockContext-&gt;getTemplate(), array(
+            'count'     =&gt; $rows,
+            'block'     =&gt; $blockContext-&gt;getBlock(),
+            'settings'  =&gt; $settings,
+        ), $response);
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So basically, you define entity and method and return that to your template.
+We register block as a service:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/services.yml
+admin.block.service.stats:
+    class: YourBundle\Block\Service\StatsBlockService
+    arguments: ["admin.block.service.stats", "@templating", "@doctrine.orm.entity_manager"]
+    public: true
+    tags:
+        - {name: "sonata.block"}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Also, inside of your sonata config for blocks, you need to add this new block:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">config.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/config.yml
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+        # enable the SonataAdminBundle block
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+        sonata.admin.block.search_result:
+            contexts: [admin]
+        admin.block.service.stats: ~</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">block_stats.html.twig</div>
+<div class="content">
+<pre class="highlight"><code class="language-twig" data-lang="twig">&lt;div id="cms-block-{{ block.id }}" class="cms-block cms-block-element col-md-3"&gt;
+    &lt;div class="small-box {{ settings.css_class }}"&gt;
+        &lt;div class="inner"&gt;
+            &lt;h3&gt;{{ count }}&lt;/h3&gt;
+
+            &lt;p&gt;{{ settings.title }}&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class="icon"&gt;
+            &lt;i class="fa {{ settings.icon }}"&gt;&lt;/i&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And now we go back to twig template for stats admin:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">stats.html.twig</div>
+<div class="content">
+<pre class="highlight"><code class="language-twig" data-lang="twig">{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block content %}
+    &lt;div class="row"&gt;
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:User',
+            'repository_method' : 'findNumberofAllUsers',
+            'title' : 'Users',
+            'css_class' : 'bg-gray-active',
+            'icon' : 'fa-users'
+        }) }}
+
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:Delivery',
+            'repository_method' : 'findAllDeliversInProgress',
+            'title' : 'Deliveries in Progress',
+            'css_class' : 'bg-yellow',
+            'icon' : 'fa-truck'
+        }) }}
+
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:Delivery',
+            'repository_method' : 'findAllFailedDelivers',
+            'title' : 'Failed Deliveries',
+            'css_class' : 'bg-red',
+            'icon' : 'fa-truck'
+        }) }}
+    &lt;/div&gt;
+{% endblock %}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And that is it, you create a custom page that is more sonata way and you get a statistics page. I hope this helps someone as it helped me.</p>
+</div>
+</div>
+</div>]]></description><link>https://kunicmarko20.github.io/2017/09/17/Sonata-Admin-Custom-Page.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/09/17/Sonata-Admin-Custom-Page.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Sonata Admin]]></category><category><![CDATA[Custom Page]]></category><category><![CDATA[Sonata Statistics]]></category><category><![CDATA[Sonata Blocks]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Sun, 17 Sep 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Doctrine Second Level Cache with Translations and Redis]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Second level cache was introduced with <a href="http://www.doctrine-project.org/2015/04/02/orm-2-5-0.html">Doctrine ORM 2.5.0 Release</a>, it is still marked as experimental but it speeds up performance and people use it in production. I had lost time on finding how to implement this from different sources and make it work with doctrine extensions/knp doctrine behaviors.</p>

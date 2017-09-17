@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Sonata Admin Custom Page</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+    <!-- <meta name="twitter:site" content="">
+
+<meta name="twitter:creator" content="">
+
+<meta name="google-site-verification" content="">
+
+<meta property="fb:admins" content="">
+ -->
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link href="//fonts.googleapis.com/" rel="dns-prefetch">
+    <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
+
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/main.min.css?v=1505667323763"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/custom.css?v=1505667323763"/>
+    <link rel="stylesheet" href="//kunicmarko20.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1505667323763"/>
+
+
+
+
+    <script type="text/javascript">
+      var ga_ua = 'UA-XXXXX-X';
+      
+      var disqus_shortname = 'example';
+      
+      var enable_pjax = true;
+
+      // Pace Options
+      // ==============
+      window.paceOptions = {
+        catchupTime: 100,
+        minTime: 100,
+        elements: false,
+        restartOnRequestAfter: 500,
+        startOnPageLoad: false
+      }
+
+      // Ghostium Globals
+      // ==============
+      window.GHOSTIUM = {};
+      GHOSTIUM.haveGA = typeof ga_ua !== 'undefined' && ga_ua !== 'UA-XXXXX-X';
+      GHOSTIUM.haveDisqus = typeof disqus_shortname !== 'undefined' && disqus_shortname !== 'example';
+      GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
+    </script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1505667323763"></script>
+
+    <link rel="canonical" href="https://kunicmarko20.github.io/2017/09/17/Sonata-Admin-Custom-Page.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Marko Kunic" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Sonata Admin Custom Page" />
+    <meta property="og:description" content="If you do a google search for &quot;sonata admin custom page&quot; you will probably find this, while this is still a valid solution there is a better one. I needed to create a statistics page that would cover various Entities and I needed it in Sonata Admin. Here I will" />
+    <meta property="og:url" content="https://kunicmarko20.github.io/2017/09/17/Sonata-Admin-Custom-Page.html" />
+    <meta property="article:published_time" content="2017-09-17T00:00:00.000Z" />
+    <meta property="article:tag" content="Symfony" />
+    <meta property="article:tag" content="Sonata Admin" />
+    <meta property="article:tag" content="Custom Page" />
+    <meta property="article:tag" content="Sonata Statistics" />
+    <meta property="article:tag" content="Sonata Blocks" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Sonata Admin Custom Page" />
+    <meta name="twitter:description" content="If you do a google search for &quot;sonata admin custom page&quot; you will probably find this, while this is still a valid solution there is a better one. I needed to create a statistics page that would cover various Entities and I needed it in Sonata Admin. Here I will" />
+    <meta name="twitter:url" content="https://kunicmarko20.github.io/2017/09/17/Sonata-Admin-Custom-Page.html" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Marko Kunic",
+    "author": {
+        "@type": "Person",
+        "name": "Marko Kunic",
+        "image": "https://avatars3.githubusercontent.com/u/13528674?v=4",
+        "url": "https://kunicmarko20.github.io/author/kunicmarko20/",
+        "sameAs": "https://github.com/kunicmarko20"
+    },
+    "headline": "Sonata Admin Custom Page",
+    "url": "https://kunicmarko20.github.io/2017/09/17/Sonata-Admin-Custom-Page.html",
+    "datePublished": "2017-09-17T00:00:00.000Z",
+    "keywords": "Symfony, Sonata Admin, Custom Page, Sonata Statistics, Sonata Blocks",
+    "description": "If you do a google search for &quot;sonata admin custom page&quot; you will probably find this, while this is still a valid solution there is a better one. I needed to create a statistics page that would cover various Entities and I needed it in Sonata Admin. Here I will"
+}
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Marko Kunic" href="https://kunicmarko20.github.io/rss/" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+    
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  </head>
+  <body class="post-template tag-Symfony tag-Sonata-Admin tag-Custom-Page tag-Sonata-Statistics tag-Sonata-Blocks">
+
+    <button data-action="open-drawer" id="drawer-button" class="drawer-button"><i class="fa fa-bars"></i></button>
+    <nav tabindex="-1" class="drawer">
+      <div class="drawer-container">
+        <!--.drawer-search(role="search")-->
+        <ul role="navigation" class="drawer-list">
+          
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" data-pjax>
+              <i class="fa fa-home"></i>Home
+            </a>
+          </li>
+          <!-- <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io" title="Marko Kunic" data-pjax>
+              <i class="fa fa-list-alt"></i>All posts
+            </a>
+          </li> -->
+          <li class="drawer-list-item">
+            <a href="https://kunicmarko20.github.io/rss/">
+              <i class="fa fa-rss"></i>Subscribe to Feed
+            </a>
+          </li>
+          <li class="drawer-list-divider"></li>
+          <li class="drawer-list-item drawer-list-title">
+            Follow me
+          </li>
+          
+          
+          <li class="drawer-list-item">
+            <a href="https://github.com/kunicmarko20" title="Github" target="_blank">
+              <i class="fa fa-github"></i>Github
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="http://rs.linkedin.com/in/kunicmarko20" title="LinkedIn" target="_blank">
+              <i class="fa fa-linkedin"></i>LinkedIn
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="mailto:kunicmarko20@gmail.com" title="Email" target="_blank">
+              <i class="fa fa-envelope-o"></i>Email
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="drawer-overlay"></div>
+    <main id="container" role="main" class="container">
+      <div class="surface">
+        <div class="surface-container">
+          <div data-pjax-container class="content">
+            
+<section class="wrapper wrapper-post">
+  <div class="wrapper-container">
+    <article itemscope itemtype="http://schema.org/BlogPosting" role="article" class="post post tag-Symfony tag-Sonata-Admin tag-Custom-Page tag-Sonata-Statistics tag-Sonata-Blocks">
+        <section class="post-container">
+          <header class="post-header">
+            <ul class="post-meta-list">
+              <li class="post-meta-item">
+                <time datetime="2017-09-17" itemprop="datePublished">
+                  19 hours ago
+                </time>
+              </li>
+                <li class="post-meta-item">
+                  <span class="tags"><i class="fa fa-tags"></i>
+                      <span>
+                      <a href="https://kunicmarko20.github.io/tag/Symfony/">Symfony</a>, <a href="https://kunicmarko20.github.io/tag/Sonata-Admin/">Sonata Admin</a>, <a href="https://kunicmarko20.github.io/tag/Custom-Page/">Custom Page</a>, <a href="https://kunicmarko20.github.io/tag/Sonata-Statistics/">Sonata Statistics</a>, <a href="https://kunicmarko20.github.io/tag/Sonata-Blocks/">Sonata Blocks</a></span>
+                  </span>
+                </li>
+              <li class="post-meta-item">
+                <a href="#disqus_thread" data-disqus-identifier="">Comments</a>
+              </li>
+            </ul>
+            <h1 itemprop="name headline" class="post-title"><a href="https://kunicmarko20.github.io/2017/09/17/Sonata-Admin-Custom-Page.html" itemprop="url" data-pjax title="Sonata Admin Custom Page">Sonata Admin Custom Page</a></h1>
+            <!--h2 itemprop="about" class="post-subtitle"></h2-->
+          </header>
+          <aside class="post-side">
+            <div class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img src="https://avatars3.githubusercontent.com/u/13528674?v&#x3D;4" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <a href="https://github.com/kunicmarko20" class="post-author-name">
+                  Marko Kunic
+                </a>
+                <p class="post-author-bio"></p>
+              </div>
+            </div>
+          </aside>
+          <div itemprop="articleBody" class="post-body">
+            <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you do a google search for "sonata admin custom page" you will probably find <a href="http://blog.eike.se/2014/03/custom-page-controller-in-sonata-admin.html">this</a>, while this is still a valid solution there is a better one. I needed to create a statistics page that would cover various Entities and I needed it in Sonata Admin. Here I will explain a better way for a custom page and how to use sonata blocks to make a universal block for statistics.</p>
+</div>
+<hr>
+<div class="paragraph">
+<p><strong>TL;DR</strong>: Code for this can be found <a href="https://gist.github.com/kunicmarko20/f500c5ed1e4cee7c6df8cbcc7c7053c0">here</a>.</p>
+</div>
+<hr>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_page">Custom Page</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can register Sonata Admin class without Entity (I was shocked too as this is not mentioned anywhere).</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/services.yml
+bundle.admin.stats:
+    class: YourBundle\Admin\StatsAdmin
+    arguments: [~, ~, AdminBundle:StatsCRUD]
+    tags:
+        - { name: sonata.admin, manager_type: orm, label: Stats, group: Stats, on_top: true, icon: '&lt;i class="fa fa-bar-chart"&gt;&lt;/i&gt;' }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As you can see here, we registered admin class without Entity with a custom controller.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StatsAdmin.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace YourBundle\Admin;
+
+use Sonata\AdminBundle\Admin\AbstractAdmin;
+use Sonata\AdminBundle\Route\RouteCollection;
+
+class StatsAdmin extends AbstractAdmin
+{
+    protected $baseRoutePattern = 'stats';
+    protected $baseRouteName = 'stats';
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection-&gt;clearExcept(['list']);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You have to define '$baseroutePattern' and '$baseRouteName', and we will clear all other routes but the list.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StatsCRUDController.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace YourBundle\Controller;
+
+use Sonata\AdminBundle\Controller\CRUDController;
+
+class StatsCRUDController extends CRUDController
+{
+    public function listAction()
+    {
+        return $this-&gt;render('YourBundle::stats.html.twig');
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In a controller, it is up to you but as I said that I am making statistics page I will just render my template here. I will now go to creating custom Sonata Block and after that, I will show you template.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sonata_block">Sonata Block</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here we will create a universal block that will accept any Entity and Repository Method, also CSS class, font awesome icon, and a title.</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">StatsBlockService.php</div>
+<div class="content">
+<pre class="highlight"><code class="language-php" data-lang="php">&lt;?php
+
+namespace YourBundle\Block\Service;
+
+use Doctrine\ORM\EntityManagerInterface;
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\CoreBundle\Validator\ErrorElement;
+use Sonata\BlockBundle\Block\Service\AbstractBlockService;
+use Sonata\BlockBundle\Block\BlockContextInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Bundle\TwigBundle\TwigEngine;
+
+class StatsBlockService extends AbstractBlockService
+{
+
+    private $entityManager;
+
+    public function __construct(string $serviceId, TwigEngine $templating, EntityManagerInterface $entityManager)
+    {
+        $this-&gt;entityManager = $entityManager;
+        parent::__construct($serviceId, $templating);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'Stats Block';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureSettings(OptionsResolver $resolver)
+    {
+        $resolver-&gt;setDefaults(array(
+            'entity' =&gt; 'Add Entity',
+            'repository_method' =&gt; 'findAll',
+            'title' =&gt; 'Insert block Title',
+            'css_class' =&gt; 'bg-blue',
+            'icon' =&gt; 'fa-users',
+            'template' =&gt; 'YourBundle:Block:block_stats.html.twig',
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function buildEditForm(FormMapper $formMapper, BlockInterface $block)
+    {
+        $formMapper-&gt;add('settings', 'sonata_type_immutable_array', array(
+            'keys' =&gt; array(
+                array('entity', 'text', array('required' =&gt; false)),
+                array('repository_method', 'text', array('required' =&gt; false)),
+                array('title', 'text', array('required' =&gt; false)),
+                array('css_class', 'text', array('required' =&gt; false)),
+                array('icon', 'text', array('required' =&gt; false)),
+            ),
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateBlock(ErrorElement $errorElement, BlockInterface $block)
+    {
+        $errorElement
+            -&gt;with('settings[entity]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end()
+            -&gt;with('settings[repository_method]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end()
+            -&gt;with('settings[title]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+                -&gt;assertMaxLength(array('limit' =&gt; 50))
+            -&gt;end()
+            -&gt;with('settings[css_class]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end()
+            -&gt;with('settings[icon]')
+                -&gt;assertNotNull(array())
+                -&gt;assertNotBlank()
+            -&gt;end();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function execute(BlockContextInterface $blockContext, Response $response = null)
+    {
+        $settings = $blockContext-&gt;getSettings();
+        $entity = $settings['entity'];
+        $method = $settings['repository_method'];
+
+        $rows = $this-&gt;entityManager-&gt;getRepository($entity)-&gt;$method();
+
+        return $this-&gt;templating-&gt;renderResponse($blockContext-&gt;getTemplate(), array(
+            'count'     =&gt; $rows,
+            'block'     =&gt; $blockContext-&gt;getBlock(),
+            'settings'  =&gt; $settings,
+        ), $response);
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So basically, you define entity and method and return that to your template.
+We register block as a service:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">services.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/services.yml
+admin.block.service.stats:
+    class: YourBundle\Block\Service\StatsBlockService
+    arguments: ["admin.block.service.stats", "@templating", "@doctrine.orm.entity_manager"]
+    public: true
+    tags:
+        - {name: "sonata.block"}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Also, inside of your sonata config for blocks, you need to add this new block:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">config.yml</div>
+<div class="content">
+<pre class="highlight"><code class="language-yml" data-lang="yml">#app/config/config.yml
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+        # enable the SonataAdminBundle block
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+        sonata.admin.block.search_result:
+            contexts: [admin]
+        admin.block.service.stats: ~</code></pre>
+</div>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">block_stats.html.twig</div>
+<div class="content">
+<pre class="highlight"><code class="language-twig" data-lang="twig">&lt;div id="cms-block-{{ block.id }}" class="cms-block cms-block-element col-md-3"&gt;
+    &lt;div class="small-box {{ settings.css_class }}"&gt;
+        &lt;div class="inner"&gt;
+            &lt;h3&gt;{{ count }}&lt;/h3&gt;
+
+            &lt;p&gt;{{ settings.title }}&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class="icon"&gt;
+            &lt;i class="fa {{ settings.icon }}"&gt;&lt;/i&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And now we go back to twig template for stats admin:</p>
+</div>
+<div id="app-listing" class="listingblock">
+<div class="title">stats.html.twig</div>
+<div class="content">
+<pre class="highlight"><code class="language-twig" data-lang="twig">{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block content %}
+    &lt;div class="row"&gt;
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:User',
+            'repository_method' : 'findNumberofAllUsers',
+            'title' : 'Users',
+            'css_class' : 'bg-gray-active',
+            'icon' : 'fa-users'
+        }) }}
+
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:Delivery',
+            'repository_method' : 'findAllDeliversInProgress',
+            'title' : 'Deliveries in Progress',
+            'css_class' : 'bg-yellow',
+            'icon' : 'fa-truck'
+        }) }}
+
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:Delivery',
+            'repository_method' : 'findAllFailedDelivers',
+            'title' : 'Failed Deliveries',
+            'css_class' : 'bg-red',
+            'icon' : 'fa-truck'
+        }) }}
+    &lt;/div&gt;
+{% endblock %}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And that is it, you create a custom page that is more sonata way and you get a statistics page. I hope this helps someone as it helped me.</p>
+</div>
+</div>
+</div>
+          </div>
+          <footer class="post-footer">
+            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="post-author">
+                <a href="https://github.com/kunicmarko20" class="post-author-avatar">
+                  <img itemprop="image" src="https://avatars3.githubusercontent.com/u/13528674?v&#x3D;4" alt="Marko Kunic">
+                </a>
+              <div class="post-author-info">
+                <h4 class="post-footer-heading">Written By</h4>
+                <a href="https://github.com/kunicmarko20" itemprop="url" class="post-author-name">
+                  <span itemprop="name">Marko Kunic</span>
+                </a>
+                <p itemprop="description" class="post-author-bio"></p>
+                  <p class="post-author-location">Serbia</p>
+                  <p class="post-author-website">
+                    <a href="https://github.com/kunicmarko20" rel="nofollow">https://github.com/kunicmarko20</a>
+                  </p>
+                <p class="post-info">
+                  <b class="post-info-title">Published on</b>
+                  <time class="post-date">September 17, 2017</time>
+                </p>
+              </div>
+            </div>
+            <div class="post-social">
+              <h4 class="post-footer-heading">Spread the word</h4>
+              <a href="#" data-action="share-twitter"><i class="fa fa-fw fa-lg fa-twitter"></i></a>
+              <a href="#" data-action="share-facebook"><i class="fa fa-fw fa-lg fa-facebook"></i></a>
+              <a href="#" data-action="share-gplus"><i class="fa fa-fw fa-lg fa-google-plus"></i></a>
+            </div>
+          </footer>
+        </section>
+      <section itemprop="comment" class="post-comments">
+        <div id="disqus_thread"></div>
+      </section>
+    </article>
+
+    <footer role="contentinfo" class="footer">
+      <p><small>Copyright &copy; <span itemprop="copyrightHolder">Marko Kunic</span>. 2017. All Rights Reserved.</small></p>
+      <p><small><a href="http://ghostium.oswaldoacauan.com/" target="_blank">Ghostium Theme</a> by <a href="http://twitter.com/oswaldoacauan" target="_blank">@oswaldoacauan</a></small></p>
+      <p><small>Adapted by <a href="https://twitter.com/mgreau">Maxime Gréau</a></small></p>
+      <p><small>Published with <a href="http://hubpress.io">HubPress</a></small></p>
+    </footer>
+  </div>
+</section>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script src="//kunicmarko20.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1505667323763"></script>
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-62123240-3', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+  </body>
+</html>
