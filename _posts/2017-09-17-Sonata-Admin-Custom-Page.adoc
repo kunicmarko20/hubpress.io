@@ -1,0 +1,283 @@
+= Sonata Admin Custom Page
+:published_at: 2017-09-17
+:hp-tags: Symfony, Sonata Admin, Custom Page, Sonata Statistics, Sonata Blocks
+
+If you do a google search for "sonata admin custom page" you will probably find http://blog.eike.se/2014/03/custom-page-controller-in-sonata-admin.html[this], while this is still a valid solution there is a better one. I needed to create a statistics page that would cover various Entities and I needed it in Sonata Admin. Here I will explain a better way for a custom page and how to use sonata blocks to make a universal block for statistics.
+
+'''
+*TL;DR*: Code for this can be found https://gist.github.com/kunicmarko20/f500c5ed1e4cee7c6df8cbcc7c7053c0[here]. 
+
+'''
+== Custom Page
+
+You can register Sonata Admin class without Entity (I was shocked too as this is not mentioned anywhere).
+
+[[app-listing]]
+[source,yml]
+.services.yml
+----
+#app/config/services.yml
+bundle.admin.stats:
+    class: YourBundle\Admin\StatsAdmin
+    arguments: [~, ~, AdminBundle:StatsCRUD]
+    tags:
+        - { name: sonata.admin, manager_type: orm, label: Stats, group: Stats, on_top: true, icon: '<i class="fa fa-bar-chart"></i>' }
+----
+
+As you can see here, we registered admin class without Entity with a custom controller.
+
+[[app-listing]]
+[source,php]
+.StatsAdmin.php
+----
+<?php
+
+namespace YourBundle\Admin;
+
+use Sonata\AdminBundle\Admin\AbstractAdmin;
+use Sonata\AdminBundle\Route\RouteCollection;
+
+class StatsAdmin extends AbstractAdmin
+{
+    protected $baseRoutePattern = 'stats';
+    protected $baseRouteName = 'stats';
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection->clearExcept(['list']);
+    }
+}
+----
+
+You have to define '$baseroutePattern' and '$baseRouteName', and we will clear all other routes but the list.
+
+[[app-listing]]
+[source,php]
+.StatsCRUDController.php
+----
+<?php
+
+namespace YourBundle\Controller;
+
+use Sonata\AdminBundle\Controller\CRUDController;
+
+class StatsCRUDController extends CRUDController
+{
+    public function listAction()
+    {
+        return $this->render('YourBundle::stats.html.twig');
+    }
+}
+----
+
+In a controller, it is up to you but as I said that I am making statistics page I will just render my template here. I will now go to creating custom Sonata Block and after that, I will show you template.
+
+== Sonata Block
+Here we will create a universal block that will accept any Entity and Repository Method, also CSS class, font awesome icon, and a title.
+
+[[app-listing]]
+[source,php]
+.StatsBlockService.php
+----
+<?php
+
+namespace YourBundle\Block\Service;
+
+use Doctrine\ORM\EntityManagerInterface;
+use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\CoreBundle\Validator\ErrorElement;
+use Sonata\BlockBundle\Block\Service\AbstractBlockService;
+use Sonata\BlockBundle\Block\BlockContextInterface;
+use Sonata\BlockBundle\Model\BlockInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Bundle\TwigBundle\TwigEngine;
+
+class StatsBlockService extends AbstractBlockService
+{
+
+    private $entityManager;
+
+    public function __construct(string $serviceId, TwigEngine $templating, EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+        parent::__construct($serviceId, $templating);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'Stats Block';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureSettings(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'entity' => 'Add Entity',
+            'repository_method' => 'findAll',
+            'title' => 'Insert block Title',
+            'css_class' => 'bg-blue',
+            'icon' => 'fa-users',
+            'template' => 'YourBundle:Block:block_stats.html.twig',
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function buildEditForm(FormMapper $formMapper, BlockInterface $block)
+    {
+        $formMapper->add('settings', 'sonata_type_immutable_array', array(
+            'keys' => array(
+                array('entity', 'text', array('required' => false)),
+                array('repository_method', 'text', array('required' => false)),
+                array('title', 'text', array('required' => false)),
+                array('css_class', 'text', array('required' => false)),
+                array('icon', 'text', array('required' => false)),
+            ),
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateBlock(ErrorElement $errorElement, BlockInterface $block)
+    {
+        $errorElement
+            ->with('settings[entity]')
+                ->assertNotNull(array())
+                ->assertNotBlank()
+            ->end()
+            ->with('settings[repository_method]')
+                ->assertNotNull(array())
+                ->assertNotBlank()
+            ->end()
+            ->with('settings[title]')
+                ->assertNotNull(array())
+                ->assertNotBlank()
+                ->assertMaxLength(array('limit' => 50))
+            ->end()
+            ->with('settings[css_class]')
+                ->assertNotNull(array())
+                ->assertNotBlank()
+            ->end()
+            ->with('settings[icon]')
+                ->assertNotNull(array())
+                ->assertNotBlank()
+            ->end();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function execute(BlockContextInterface $blockContext, Response $response = null)
+    {
+        $settings = $blockContext->getSettings();
+        $entity = $settings['entity'];
+        $method = $settings['repository_method'];
+
+        $rows = $this->entityManager->getRepository($entity)->$method();
+
+        return $this->templating->renderResponse($blockContext->getTemplate(), array(
+            'count'     => $rows,
+            'block'     => $blockContext->getBlock(),
+            'settings'  => $settings,
+        ), $response);
+    }
+----
+
+So basically, you define entity and method and return that to your template.
+We register block as a service:
+
+[[app-listing]]
+[source,yml]
+.services.yml
+----
+#app/config/services.yml
+admin.block.service.stats:
+    class: YourBundle\Block\Service\StatsBlockService
+    arguments: ["admin.block.service.stats", "@templating", "@doctrine.orm.entity_manager"]
+    public: true
+    tags:
+        - {name: "sonata.block"}
+----
+
+Also, inside of your sonata config for blocks, you need to add this new block:
+
+[[app-listing]]
+[source,yml]
+.config.yml
+----
+#app/config/config.yml
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+        # enable the SonataAdminBundle block
+        sonata.admin.block.admin_list:
+            contexts: [admin]
+        sonata.admin.block.search_result:
+            contexts: [admin]
+        admin.block.service.stats: ~
+----
+
+[[app-listing]]
+[source,twig]
+.block_stats.html.twig
+----
+<div id="cms-block-{{ block.id }}" class="cms-block cms-block-element col-md-3">
+    <div class="small-box {{ settings.css_class }}">
+        <div class="inner">
+            <h3>{{ count }}</h3>
+
+            <p>{{ settings.title }}</p>
+        </div>
+        <div class="icon">
+            <i class="fa {{ settings.icon }}"></i>
+        </div>
+    </div>
+</div>
+----
+
+And now we go back to twig template for stats admin:
+
+[[app-listing]]
+[source,twig]
+.stats.html.twig
+----
+{% extends 'SonataAdminBundle::standard_layout.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:User',
+            'repository_method' : 'findNumberofAllUsers',
+            'title' : 'Users',
+            'css_class' : 'bg-gray-active',
+            'icon' : 'fa-users'
+        }) }}
+
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:Delivery',
+            'repository_method' : 'findAllDeliversInProgress',
+            'title' : 'Deliveries in Progress',
+            'css_class' : 'bg-yellow',
+            'icon' : 'fa-truck'
+        }) }}
+
+        {{ sonata_block_render({ 'type': 'admin.block.service.stats' }, {
+            'entity' : 'AppBundle:Delivery',
+            'repository_method' : 'findAllFailedDelivers',
+            'title' : 'Failed Deliveries',
+            'css_class' : 'bg-red',
+            'icon' : 'fa-truck'
+        }) }}
+    </div>
+{% endblock %}
+----
+
+And that is it, you create a custom page that is more sonata way and you get a statistics page. I hope this helps someone as it helped me.
