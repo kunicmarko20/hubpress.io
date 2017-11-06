@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 21 Oct 2017 11:57:43 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Sonata Admin Custom Page]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Marko Kunic]]></title><description><![CDATA[Web Developer]]></description><link>https://kunicmarko20.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 06 Nov 2017 21:41:42 GMT</lastBuildDate><atom:link href="https://kunicmarko20.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Sonata Admin Custom Page]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>If you do a google search for "sonata admin custom page" you will probably find <a href="http://blog.eike.se/2014/03/custom-page-controller-in-sonata-admin.html">this</a>, while this is still a valid solution there is a better one. I needed to create a statistics page that would cover various Entities and I needed it in Sonata Admin. Here I will explain a better way for a custom page and how to use sonata blocks to make a universal block for statistics.</p>
@@ -775,7 +775,19 @@ This hook has to be in MODULE.views_execution.inc file, also <strong>node__field
 </div>
 <div class="paragraph">
 <p>For more info about the bundle and more detailed instructions check <a href="https://github.com/kunicmarko20/static-translations#installation">here</a>.</p>
-</div>]]></description><link>https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Static Translations Bundle]]></category><category><![CDATA[Symfony Translations]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Mon, 08 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Don't forget to Reduce the number of Queries!]]></title><description><![CDATA[<div class="paragraph">
+</div>]]></description><link>https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</link><guid isPermaLink="true">https://kunicmarko20.github.io/2017/05/08/Static-Translations-Bundle.html</guid><category><![CDATA[Symfony]]></category><category><![CDATA[Static Translations Bundle]]></category><category><![CDATA[Symfony Translations]]></category><dc:creator><![CDATA[Marko Kunic]]></dc:creator><pubDate>Mon, 08 May 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Don't forget to Reduce the number of Queries!]]></title><description><![CDATA[<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+While this is still a valid way to reduce number of queries, my example use EntityType in forms, I myself avoid it in my code and I suggest you to read <a href="https://stovepipe.systems/post/avoiding-entities-in-forms">this</a>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
 <p>This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading <a href="https://speakerdeck.com/afilina/speed-up-your-database-300-times">Speed Up Your Database 300 Times</a> and at slide number 6 there it was <code><strong><em>“Use JOIN to get all related data in one go.”</em></strong></code> the one thing I forgot that I shouldn&#8217;t, <code><strong>Use JOIN</strong></code>. I read about that long time ago on <a href="https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries">KnpUniversity</a> (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out).</p>
 </div>
 <div class="paragraph">
