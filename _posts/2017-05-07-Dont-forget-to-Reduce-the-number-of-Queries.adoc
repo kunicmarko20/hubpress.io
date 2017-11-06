@@ -3,6 +3,8 @@ Marko Kunic <kunicmarko20@gmail.com>
 :published_at: 2017-05-07
 :hp-tags: Symfony, Doctrine, Doctrine Queries, Database
 
+NOTE: While this is still a valid way to reduce number of queries, my example use EntityType in forms, I myself avoid it in my code and I suggest you to read https://stovepipe.systems/post/avoiding-entities-in-forms[this].
+
 This is a quick reminder for everyone to optimize their queries and not to forget about that. I was reading https://speakerdeck.com/afilina/speed-up-your-database-300-times[Speed Up Your Database 300 Times] and at slide number 6 there it was `*_“Use JOIN to get all related data in one go.”_*` the one thing I forgot that I shouldn't, `*Use JOIN*`. I read about that long time ago on https://knpuniversity.com/screencast/doctrine-queries/joins-reduce-queries[KnpUniversity] (even if you do not have a subscription you can read every tutorial with code included, be sure to check it out). 
 
 The first thing I did was to check my current application I was working on. It wasn't a big application, it was a form with a lot of fields, Entity translations and images but then I saw it in web profiler, that form was making around 60 queries. After reading everything from web profiler I saw that for every store I listed with `*->findAll()*` doctrine was making additional query when I asked for city where store was, so I created method in my Entity repository: 
